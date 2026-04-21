@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.7
+
+[compare changes](https://github.com/yanuaraditia/config/compare/v0.1.6...v0.1.7)
+
+### 🚀 Enhancements
+
+- Update package versions to 0.1.6 across core, react, and vite packages ([3afa884](https://github.com/yanuaraditia/config/commit/3afa884))
+
+### 💅 Refactors
+
+- Update package structure and improve README documentation ([6526584](https://github.com/yanuaraditia/config/commit/6526584))
+
+### ❤️ Contributors
+
+- Yanuar Aditia ([@ngalor](https://github.com/ngalor))
+
 ## v0.1.6
 
 [compare changes](https://github.com/yanuaraditia/config/compare/v0.1.5...v0.1.6)
