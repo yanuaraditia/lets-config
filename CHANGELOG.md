@@ -4,7 +4,7 @@
 
 ### 💅 Refactors
 
-- Rename @runtime-config packages to lets-config for consistency (8bb7176)
+- Rename @runtime-config packages to 0config for consistency (8bb7176)
 - Code structure for improved readability and maintainability (ae1ca5b)
 - Code structure for improved readability and maintainability (4008eb2)
 

@@ -1,14 +1,14 @@
-# runtime-config
+# 0config
 
 > Framework-agnostic `useRuntimeConfig` for Vite + React — inspired by Nuxt 3/4.
 
 ## Packages
 
-| Package | Description |
-|---|---|
-| [`0config`](./packages/core) | Types, `defineRuntimeConfig`, env-var overrides |
-| [`@0config/vite`](./packages/vite) | Vite plugin — HTML injection, virtual modules, HMR |
-| [`@0config/react`](./packages/react) | `useRuntimeConfig` hook, `RuntimeConfigProvider`, SSR utilities |
+| Package | Version | Downloads | License |
+| --- | --- | --- | --- |
+| [`0config`](./packages/core) | [![npm](https://img.shields.io/npm/v/0config?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/0config) | [![npm downloads](https://img.shields.io/npm/dm/0config?style=flat-square)](https://www.npmjs.com/package/0config) | [![license](https://img.shields.io/npm/l/0config?style=flat-square)](./LICENSE) |
+| [`@0config/vite`](./packages/vite) | [![npm](https://img.shields.io/npm/v/%400config%2Fvite?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@0config/vite) | [![npm downloads](https://img.shields.io/npm/dm/%400config%2Fvite?style=flat-square)](https://www.npmjs.com/package/@0config/vite) | [![license](https://img.shields.io/npm/l/%400config%2Fvite?style=flat-square)](./LICENSE) |
+| [`@0config/react`](./packages/react) | [![npm](https://img.shields.io/npm/v/%400config%2Freact?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@0config/react) | [![npm downloads](https://img.shields.io/npm/dm/%400config%2Freact?style=flat-square)](https://www.npmjs.com/package/@0config/react) | [![license](https://img.shields.io/npm/l/%400config%2Freact?style=flat-square)](./LICENSE) |
 
 ---
 
@@ -25,57 +25,54 @@ bun add -D @0config/vite jiti
 
 ```ts
 // runtime.config.ts
-import { defineRuntimeConfig } from '0config'
+import { defineRuntimeConfig } from "0config";
 
 export default defineRuntimeConfig({
   // 🔒 Server-only — never reaches the browser
-  dbUrl: process.env.DATABASE_URL ?? '',
+  dbUrl: process.env.DATABASE_URL ?? "",
 
   // 🌐 Public — available on client and server
   public: {
-    apiBase: process.env.VITE_API_BASE ?? '/api',
-    appName: 'My App',
+    apiBase: process.env.VITE_API_BASE ?? "/api",
+    appName: "My App",
   },
-})
+});
 ```
 
 ### 3. Add the Vite plugin
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { runtimeConfigPlugin } from '@0config/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { runtimeConfigPlugin } from "@0config/vite";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    runtimeConfigPlugin({ generateTypes: true }),
-  ],
-})
+  plugins: [react(), runtimeConfigPlugin({ generateTypes: true })],
+});
 ```
 
 ### 4. Wrap your app
 
 ```tsx
 // main.tsx
-import { RuntimeConfigProvider } from '@0config/react'
+import { RuntimeConfigProvider } from "@0config/react";
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <RuntimeConfigProvider>
     <App />
-  </RuntimeConfigProvider>
-)
+  </RuntimeConfigProvider>,
+);
 ```
 
 ### 5. Use it anywhere
 
 ```tsx
-import { useRuntimeConfig } from '@0config/react'
+import { useRuntimeConfig } from "@0config/react";
 
 export function Header() {
-  const config = useRuntimeConfig()
-  return <h1>{config.public.appName}</h1>
+  const config = useRuntimeConfig();
+  return <h1>{config.public.appName}</h1>;
 }
 ```
 
@@ -94,10 +91,10 @@ bun add -D @0config/vite jiti
 
 ```ts
 // app/entry.server.tsx
-import baseConfig from '~/runtime.config'
-import { setBaseRuntimeConfig } from '@0config/react/server'
+import baseConfig from "~/runtime.config";
+import { setBaseRuntimeConfig } from "@0config/react/server";
 
-setBaseRuntimeConfig(baseConfig)
+setBaseRuntimeConfig(baseConfig);
 // …rest of your server entry
 ```
 
@@ -105,16 +102,16 @@ setBaseRuntimeConfig(baseConfig)
 
 ```tsx
 // app/root.tsx
-import { useLoaderData, Outlet } from 'react-router'
-import { getRuntimeConfig } from '@0config/react/server'
-import { RuntimeConfigProvider, RuntimeConfigScript } from '@0config/react'
+import { useLoaderData, Outlet } from "react-router";
+import { getRuntimeConfig } from "@0config/react/server";
+import { RuntimeConfigProvider, RuntimeConfigScript } from "@0config/react";
 
 export async function loader() {
-  return { runtimeConfig: getRuntimeConfig() }
+  return { runtimeConfig: getRuntimeConfig() };
 }
 
 export default function Root() {
-  const { runtimeConfig } = useLoaderData<typeof loader>()
+  const { runtimeConfig } = useLoaderData<typeof loader>();
   return (
     <html lang="en">
       <head>
@@ -127,7 +124,7 @@ export default function Root() {
         </RuntimeConfigProvider>
       </body>
     </html>
-  )
+  );
 }
 ```
 
@@ -135,20 +132,20 @@ export default function Root() {
 
 ```tsx
 // Any component
-import { useRuntimeConfig } from '@0config/react'
+import { useRuntimeConfig } from "@0config/react";
 
 export function ApiWidget() {
-  const config = useRuntimeConfig()
-  return <span>API: {config.public.apiBase}</span>
+  const config = useRuntimeConfig();
+  return <span>API: {config.public.apiBase}</span>;
 }
 ```
 
 ```ts
 // Any loader (server-side)
-import { getRuntimeConfig } from '@0config/react/server'
+import { getRuntimeConfig } from "@0config/react/server";
 
 export async function loader() {
-  const { dbUrl } = getRuntimeConfig()
+  const { dbUrl } = getRuntimeConfig();
   // dbUrl is only available server-side
 }
 ```
@@ -159,18 +156,19 @@ export async function loader() {
 
 Override any config key at runtime without a rebuild.
 
-| Env var | Config path |
-|---|---|
-| `RUNTIME_PUBLIC_API_BASE` | `config.public.apiBase` |
-| `RUNTIME_PUBLIC_APP_NAME` | `config.public.appName` |
-| `RUNTIME_DB_URL` | `config.dbUrl` |
+| Env var                                   | Config path                           |
+| ----------------------------------------- | ------------------------------------- |
+| `RUNTIME_PUBLIC_API_BASE`                 | `config.public.apiBase`               |
+| `RUNTIME_PUBLIC_APP_NAME`                 | `config.public.appName`               |
+| `RUNTIME_DB_URL`                          | `config.dbUrl`                        |
 | `RUNTIME_PUBLIC_FEATURE_FLAGS__DARK_MODE` | `config.public.featureFlags.darkMode` |
 
 Rules:
+
 - Prefix: `RUNTIME_` (configurable via `envPrefix` option)
 - Public keys: `RUNTIME_PUBLIC_<KEY>`
 - Private keys: `RUNTIME_<KEY>`
-- camelCase word boundary: `_`  (e.g. `API_BASE` → `apiBase`)
+- camelCase word boundary: `_` (e.g. `API_BASE` → `apiBase`)
 - Nesting separator: `__` (double underscore)
 
 ---
@@ -182,13 +180,13 @@ next to your config file automatically. You can also declare types manually:
 
 ```ts
 // src/runtime-config.d.ts
-declare module '0config' {
+declare module "0config" {
   interface PrivateRuntimeConfig {
-    dbUrl: string
+    dbUrl: string;
   }
   interface PublicRuntimeConfig {
-    apiBase: string
-    appName: string
+    apiBase: string;
+    appName: string;
   }
 }
 ```
@@ -200,11 +198,12 @@ declare module '0config' {
 Import the full config directly in server-side code:
 
 ```ts
-import config from 'virtual:runtime-config'
+import config from "virtual:runtime-config";
 // config.dbUrl, config.public.apiBase …
 ```
 
 Add type support:
+
 ```json
 // tsconfig.json
 { "compilerOptions": { "types": ["@0config/vite/virtual"] } }
@@ -214,4 +213,6 @@ Add type support:
 
 ## License
 
-MIT
+## License
+
+[MIT](./LICENSE) © Yanuar Aditia
