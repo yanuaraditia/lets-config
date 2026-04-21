@@ -117,7 +117,14 @@ export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): P
       const config = getConfig()
 
       if (opts?.ssr) {
-        return `const config = ${JSON.stringify(config)};\nexport default config;\n`
+        // Auto-register via setBaseRuntimeConfig so entry.server.tsx only needs
+        // `import '#runtime-config'` — no manual setBaseRuntimeConfig call needed.
+        return [
+          `import { setBaseRuntimeConfig } from '@yanuaraditia/config-react/server';`,
+          `const config = ${JSON.stringify(baseConfig)};`,
+          `setBaseRuntimeConfig(config);`,
+          `export default config;`,
+        ].join('\n')
       }
       return `const config = ${JSON.stringify({ public: config.public ?? {} })};\nexport default config;\n`
     },

@@ -1,8 +1,8 @@
 {
   "name": "runtime-config-monorepo",
   "private": true,
-  "version": "0.1.10",
-  "description": "Framework-agnostic runtime config — inspired by Nuxt 3/4 useRuntimeConfig",
+  "version": "0.1.11",
+  "description": "Framework-agnostic runtime config \u2014 inspired by Nuxt 3/4 useRuntimeConfig",
   "homepage": "https://github.com/yanuaraditia/config#readme",
   "repository": {
     "type": "git",

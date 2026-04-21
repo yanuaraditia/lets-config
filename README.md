@@ -117,11 +117,8 @@ export default defineConfig({
 
 ```ts
 // app/entry.server.tsx
-import config from "#runtime-config";
-import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
-
-// Import from the virtual module — no duplication, config defined once in vite.config.ts
-setBaseRuntimeConfig(config);
+// One import auto-registers the config — no setBaseRuntimeConfig needed!
+import "#runtime-config";
 // …rest of your server entry
 ```
 
@@ -221,11 +218,8 @@ export default defineConfig({
 
 ```tsx
 // app/entry.server.tsx
-import config from "#runtime-config";
-import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
-
-// Import from the virtual module — no duplication, config defined once in vite.config.ts
-setBaseRuntimeConfig(config);
+// One import auto-registers the config — no setBaseRuntimeConfig needed!
+import "#runtime-config";
 
 // …rest of your entry.server.tsx (renderToPipeableStream, etc.)
 ```

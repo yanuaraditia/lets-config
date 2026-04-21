@@ -52,7 +52,7 @@ describe('runtimeConfigPlugin — inline config', async () => {
     expect(parsed.dbUrl).toBeUndefined()
   })
 
-  test('SSR load exports full config including private keys', () => {
+  test('SSR load auto-registers config and exports full config including private keys', () => {
     const plugin = runtimeConfigPlugin({
       config: { dbUrl: 'postgres://secret', public: { appName: 'MyApp' } },
     })
@@ -62,6 +62,10 @@ describe('runtimeConfigPlugin — inline config', async () => {
       '\0#runtime-config',
       { ssr: true },
     )
+    // SSR module auto-registers via setBaseRuntimeConfig
+    expect(code).toContain(`import { setBaseRuntimeConfig } from '@yanuaraditia/config-react/server'`)
+    expect(code).toContain('setBaseRuntimeConfig(config)')
+    expect(code).toContain('export default config')
     const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
     expect(parsed.dbUrl).toBe('postgres://secret')
     expect(parsed.public.appName).toBe('MyApp')
@@ -105,7 +109,7 @@ describe('runtimeConfigPlugin — env var overrides', async () => {
     delete process.env.RUNTIME_PUBLIC_APP_NAME
   })
 
-  test('applies env var overrides to private config on SSR', () => {
+  test('SSR load uses base config (env overrides applied at request time by useRuntimeConfig)', () => {
     process.env.RUNTIME_DB_URL = 'postgres://from-env'
     const plugin = runtimeConfigPlugin({
       config: { dbUrl: 'postgres://default' },
@@ -116,8 +120,9 @@ describe('runtimeConfigPlugin — env var overrides', async () => {
       '\0#runtime-config',
       { ssr: true },
     )
+    // SSR module stores the base (build-time) config; useRuntimeConfig() applies RUNTIME_ overrides at request time
     const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
-    expect(parsed.dbUrl).toBe('postgres://from-env')
+    expect(parsed.dbUrl).toBe('postgres://default')
     delete process.env.RUNTIME_DB_URL
   })
 
