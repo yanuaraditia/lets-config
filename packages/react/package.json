@@ -62,7 +62,7 @@
     "react": "^19.2.5"
   },
   "dependencies": {
-    "@yanuaraditia/config": "workspace:*"
+    "@yanuaraditia/config": "^0.1.5"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.9.0",
