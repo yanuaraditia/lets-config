@@ -1,2 +1,2 @@
 export { runtimeConfigPlugin } from './plugin'
-export type { RuntimeConfigPluginOptions } from 'lets-config'
+export type { RuntimeConfigPluginOptions } from '0config'

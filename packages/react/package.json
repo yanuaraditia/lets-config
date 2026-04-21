@@ -1,5 +1,5 @@
 {
-  "name": "@lets-config/react",
+  "name": "@0config/react",
   "version": "0.1.0",
   "description": "React bindings for @runtime-config — useRuntimeConfig hook, provider, SSR utilities",
   "keywords": ["runtime-config", "react", "vite", "useRuntimeConfig", "react-router"],
@@ -44,7 +44,7 @@
     "react": "^19.2.5"
   },
   "dependencies": {
-    "lets-config": "workspace:*"
+    "0config": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

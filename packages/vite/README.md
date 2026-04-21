@@ -1,4 +1,4 @@
-# `@lets-config/vite`
+# `@0config/vite`
 
 Vite plugin for `@runtime-config`.
 
@@ -17,7 +17,7 @@ Vite plugin for `@runtime-config`.
 // vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { runtimeConfigPlugin } from '@lets-config/vite'
+import { runtimeConfigPlugin } from '@0config/vite'
 
 export default defineConfig({
   plugins: [
@@ -33,7 +33,7 @@ export default defineConfig({
 
 ```ts
 // runtime.config.ts
-import { defineRuntimeConfig } from 'lets-config'
+import { defineRuntimeConfig } from '0config'
 
 export default defineRuntimeConfig({
   // Server-only (never sent to the browser)
@@ -56,6 +56,6 @@ import config from 'virtual:runtime-config'
 
 Add to `tsconfig.json`:
 ```json
-{ "compilerOptions": { "types": ["@lets-config/vite/virtual"] } }
+{ "compilerOptions": { "types": ["@0config/vite/virtual"] } }
 ```
 or set `generateTypes: true` to auto-generate the declarations.

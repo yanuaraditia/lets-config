@@ -6,9 +6,9 @@
 
 | Package | Description |
 |---|---|
-| [`lets-config`](./packages/core) | Types, `defineRuntimeConfig`, env-var overrides |
-| [`@lets-config/vite`](./packages/vite) | Vite plugin — HTML injection, virtual modules, HMR |
-| [`@lets-config/react`](./packages/react) | `useRuntimeConfig` hook, `RuntimeConfigProvider`, SSR utilities |
+| [`0config`](./packages/core) | Types, `defineRuntimeConfig`, env-var overrides |
+| [`@0config/vite`](./packages/vite) | Vite plugin — HTML injection, virtual modules, HMR |
+| [`@0config/react`](./packages/react) | `useRuntimeConfig` hook, `RuntimeConfigProvider`, SSR utilities |
 
 ---
 
@@ -17,15 +17,15 @@
 ### 1. Install
 
 ```bash
-bun add lets-config @lets-config/react
-bun add -D @lets-config/vite jiti
+bun add 0config @0config/react
+bun add -D @0config/vite jiti
 ```
 
 ### 2. Define your config
 
 ```ts
 // runtime.config.ts
-import { defineRuntimeConfig } from 'lets-config'
+import { defineRuntimeConfig } from '0config'
 
 export default defineRuntimeConfig({
   // 🔒 Server-only — never reaches the browser
@@ -45,7 +45,7 @@ export default defineRuntimeConfig({
 // vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { runtimeConfigPlugin } from '@lets-config/vite'
+import { runtimeConfigPlugin } from '@0config/vite'
 
 export default defineConfig({
   plugins: [
@@ -59,7 +59,7 @@ export default defineConfig({
 
 ```tsx
 // main.tsx
-import { RuntimeConfigProvider } from '@lets-config/react'
+import { RuntimeConfigProvider } from '@0config/react'
 
 createRoot(document.getElementById('root')!).render(
   <RuntimeConfigProvider>
@@ -71,7 +71,7 @@ createRoot(document.getElementById('root')!).render(
 ### 5. Use it anywhere
 
 ```tsx
-import { useRuntimeConfig } from '@lets-config/react'
+import { useRuntimeConfig } from '@0config/react'
 
 export function Header() {
   const config = useRuntimeConfig()
@@ -86,8 +86,8 @@ export function Header() {
 ### 1. Install
 
 ```bash
-bun add lets-config @lets-config/react
-bun add -D @lets-config/vite jiti
+bun add 0config @0config/react
+bun add -D @0config/vite jiti
 ```
 
 ### 2. Register base config (server entry)
@@ -95,7 +95,7 @@ bun add -D @lets-config/vite jiti
 ```ts
 // app/entry.server.tsx
 import baseConfig from '~/runtime.config'
-import { setBaseRuntimeConfig } from '@lets-config/react/server'
+import { setBaseRuntimeConfig } from '@0config/react/server'
 
 setBaseRuntimeConfig(baseConfig)
 // …rest of your server entry
@@ -106,8 +106,8 @@ setBaseRuntimeConfig(baseConfig)
 ```tsx
 // app/root.tsx
 import { useLoaderData, Outlet } from 'react-router'
-import { getRuntimeConfig } from '@lets-config/react/server'
-import { RuntimeConfigProvider, RuntimeConfigScript } from '@lets-config/react'
+import { getRuntimeConfig } from '@0config/react/server'
+import { RuntimeConfigProvider, RuntimeConfigScript } from '@0config/react'
 
 export async function loader() {
   return { runtimeConfig: getRuntimeConfig() }
@@ -135,7 +135,7 @@ export default function Root() {
 
 ```tsx
 // Any component
-import { useRuntimeConfig } from '@lets-config/react'
+import { useRuntimeConfig } from '@0config/react'
 
 export function ApiWidget() {
   const config = useRuntimeConfig()
@@ -145,7 +145,7 @@ export function ApiWidget() {
 
 ```ts
 // Any loader (server-side)
-import { getRuntimeConfig } from '@lets-config/react/server'
+import { getRuntimeConfig } from '@0config/react/server'
 
 export async function loader() {
   const { dbUrl } = getRuntimeConfig()
@@ -182,7 +182,7 @@ next to your config file automatically. You can also declare types manually:
 
 ```ts
 // src/runtime-config.d.ts
-declare module 'lets-config' {
+declare module '0config' {
   interface PrivateRuntimeConfig {
     dbUrl: string
   }
@@ -207,7 +207,7 @@ import config from 'virtual:runtime-config'
 Add type support:
 ```json
 // tsconfig.json
-{ "compilerOptions": { "types": ["@lets-config/vite/virtual"] } }
+{ "compilerOptions": { "types": ["@0config/vite/virtual"] } }
 ```
 
 ---
