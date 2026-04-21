@@ -17,8 +17,8 @@
 ### 1. Install
 
 ```bash
-pnpm add lets-config @lets-config/react
-pnpm add -D @lets-config/vite jiti
+bun add lets-config @lets-config/react
+bun add -D @lets-config/vite jiti
 ```
 
 ### 2. Define your config
@@ -86,8 +86,8 @@ export function Header() {
 ### 1. Install
 
 ```bash
-pnpm add lets-config @lets-config/react
-pnpm add -D @lets-config/vite jiti
+bun add lets-config @lets-config/react
+bun add -D @lets-config/vite jiti
 ```
 
 ### 2. Register base config (server entry)
