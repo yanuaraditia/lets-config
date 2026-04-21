@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.10
+
+[compare changes](https://github.com/yanuaraditia/config/compare/v0.1.9...v0.1.10)
+
+### 🚀 Enhancements
+
+- Bump version to 0.1.9 for react and vite packages ([fdfee75](https://github.com/yanuaraditia/config/commit/fdfee75))
+- Add type definitions for virtual module in package.json ([2270379](https://github.com/yanuaraditia/config/commit/2270379))
+
+### ❤️ Contributors
+
+- Yanuar Aditia ([@ngalor](https://github.com/ngalor))
+
 ## v0.1.9
 
 [compare changes](https://github.com/yanuaraditia/config/compare/v0.1.8...v0.1.9)
