@@ -51,9 +51,6 @@
   "peerDependencies": {
     "vite": "^8.0.9"
   },
-  "dependencies": {
-    "@yanuaraditia/config-core": "workspace:*"
-  },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "tsdown": "^0.21.9",
