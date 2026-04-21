@@ -10,8 +10,8 @@
     "build": "bun --filter='*' run build",
     "dev": "bun --filter='*' run dev",
     "clean": "bun --filter='*' run clean",
-    "pub": "bun run build && bun --filter='*' publish",
-    "pub:dry": "bun run build && bun --filter='*' publish --dry-run",
+    "pub": "bun run build && bun --filter='./packages/*' publish",
+    "pub:dry": "bun run build && bun --filter='./packages/*' publish --dry-run",
     "release": "changelogen --release --bump",
     "release-minor": "changelogen --release --minor",
     "release-patch": "changelogen --release --patch"
