@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.6
+
+[compare changes](https://github.com/yanuaraditia/config/compare/v0.1.5...v0.1.6)
+
+### 🚀 Enhancements
+
+- Update package dependencies to version 0.1.5 and sync versions in scripts ([e501d74](https://github.com/yanuaraditia/config/commit/e501d74))
+
+### 🏡 Chore
+
+- **release:** 0.1.5 ([7d3123c](https://github.com/yanuaraditia/config/commit/7d3123c))
+
+### ❤️ Contributors
+
+- Yanuar Aditia ([@ngalor](https://github.com/ngalor))
+
 ## v0.1.5
 
 [compare changes](https://github.com/yanuaraditia/config/compare/v0.1.4...v0.1.5)
