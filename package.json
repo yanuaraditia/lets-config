@@ -10,8 +10,8 @@
     "build": "bun --filter='*' run build",
     "dev": "bun --filter='*' run dev",
     "clean": "bun --filter='*' run clean",
-    "pub": "bun run build && bun publish --cwd packages/core && bun publish --cwd packages/vite && bun publish --cwd packages/react",
-    "pub:dry": "bun run build && bun publish --cwd packages/core --dry-run && bun publish --cwd packages/vite --dry-run && bun publish --cwd packages/react --dry-run",
+    "pub": "bun run build && (cd packages/core && npm publish) && (cd packages/vite && npm publish) && (cd packages/react && npm publish)",
+    "pub:dry": "bun run build && (cd packages/core && npm publish --dry-run) && (cd packages/vite && npm publish --dry-run) && (cd packages/react && npm publish --dry-run)",
     "release": "changelogen --release --bump",
     "release-minor": "changelogen --release --minor",
     "release-patch": "changelogen --release --patch"
