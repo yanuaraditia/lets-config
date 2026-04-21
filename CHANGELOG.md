@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.8
+
+[compare changes](https://github.com/yanuaraditia/config/compare/v0.1.7...v0.1.8)
+
+### 🚀 Enhancements
+
+- Bump version to 0.1.7 for react and vite packages ([d94e0c4](https://github.com/yanuaraditia/config/commit/d94e0c4))
+- Update package versions to 0.1.7 for react and vite packages ([54c206c](https://github.com/yanuaraditia/config/commit/54c206c))
+
+### ❤️ Contributors
+
+- Yanuar Aditia ([@ngalor](https://github.com/ngalor))
+
 ## v0.1.7
 
 [compare changes](https://github.com/yanuaraditia/config/compare/v0.1.6...v0.1.7)
