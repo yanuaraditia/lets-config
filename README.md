@@ -85,6 +85,12 @@ bun add @yanuaraditia/config-react
 bun add -D @yanuaraditia/config
 ```
 
+Add to your `tsconfig.json` for `#runtime-config` types:
+
+```json
+{ "compilerOptions": { "types": ["@yanuaraditia/config/virtual"] } }
+```
+
 ### 2. Add the Vite plugin
 
 ```ts
@@ -111,15 +117,11 @@ export default defineConfig({
 
 ```ts
 // app/entry.server.tsx
+import config from "#runtime-config";
 import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
 
-setBaseRuntimeConfig({
-  dbUrl: process.env.DATABASE_URL ?? "",
-  public: {
-    apiBase: process.env.API_BASE ?? "/api",
-    appName: "My App",
-  },
-});
+// Import from the virtual module — no duplication, config defined once in vite.config.ts
+setBaseRuntimeConfig(config);
 // …rest of your server entry
 ```
 
@@ -182,6 +184,12 @@ bun add @yanuaraditia/config-react
 bun add -D @yanuaraditia/config
 ```
 
+Add to your `tsconfig.json` for `#runtime-config` types:
+
+```json
+{ "compilerOptions": { "types": ["@yanuaraditia/config/virtual"] } }
+```
+
 ### 2. Add the Vite plugin
 
 ```ts
@@ -213,16 +221,11 @@ export default defineConfig({
 
 ```tsx
 // app/entry.server.tsx
+import config from "#runtime-config";
 import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
 
-// Register once at module load time (before any request handlers run)
-setBaseRuntimeConfig({
-  shopifyApiKey: process.env.SHOPIFY_API_KEY ?? "",
-  public: {
-    appName: "My Shopify App",
-    apiBase: "/api",
-  },
-});
+// Import from the virtual module — no duplication, config defined once in vite.config.ts
+setBaseRuntimeConfig(config);
 
 // …rest of your entry.server.tsx (renderToPipeableStream, etc.)
 ```
