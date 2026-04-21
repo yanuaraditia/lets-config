@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.1.4
+
+[compare changes](https://github.com/yanuaraditia/config/compare/v0.1.3...v0.1.4)
+
+### 🚀 Enhancements
+
+- Enhance runtime config package with new features and tests ([e20d930](https://github.com/yanuaraditia/config/commit/e20d930))
+
+### 🩹 Fixes
+
+- Update package versions to 0.1.3 for core, react, and vite packages ([dcf6581](https://github.com/yanuaraditia/config/commit/dcf6581))
+- Update repository URLs and homepage links in package.json files ([2f790dd](https://github.com/yanuaraditia/config/commit/2f790dd))
+
+### ❤️ Contributors
+
+- Yanuar Aditia ([@ngalor](https://github.com/ngalor))
+
 ## v0.1.3
 
 [compare changes](https://github.com/yanuaraditia/run-config/compare/v0.1.2...v0.1.3)
