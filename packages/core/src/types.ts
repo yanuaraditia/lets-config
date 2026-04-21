@@ -11,8 +11,9 @@
  *   }
  * }
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface PrivateRuntimeConfig {}
+export interface PrivateRuntimeConfig {
+  [key: string]: unknown
+}
 
 /**
  * Extend this interface to add your public (client + server) config keys.
@@ -25,8 +26,9 @@ export interface PrivateRuntimeConfig {}
  *   }
  * }
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface PublicRuntimeConfig {}
+export interface PublicRuntimeConfig {
+  [key: string]: unknown
+}
 
 // ─── Composed types ──────────────────────────────────────────────────────────
 
@@ -39,8 +41,8 @@ export type ClientRuntimeConfig = { public: PublicRuntimeConfig }
 // ─── defineRuntimeConfig input type ─────────────────────────────────────────
 
 export type RuntimeConfigInput = PrivateRuntimeConfig & {
-  public?: Partial<PublicRuntimeConfig> & Record<string, unknown>
-} & Record<string, unknown>
+  public?: Partial<PublicRuntimeConfig>
+}
 
 // ─── Options ─────────────────────────────────────────────────────────────────
 // RuntimeConfigPluginOptions lives in @yanuaraditia/config-vite (vite-specific)

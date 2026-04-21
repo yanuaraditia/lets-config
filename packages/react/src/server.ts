@@ -94,3 +94,5 @@ export function createGetRuntimeConfig<T extends RuntimeConfigInput>(
       prefix,
     ) as T
 }
+
+export { RuntimeConfigProvider } from './server-provider'

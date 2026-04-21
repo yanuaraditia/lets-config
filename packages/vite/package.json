@@ -1,6 +1,6 @@
 {
   "name": "@yanuaraditia/config",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Runtime config for Vite + React — defineRuntimeConfig, Vite plugin, env overrides",
   "homepage": "https://github.com/yanuaraditia/config#readme",
   "repository": {
