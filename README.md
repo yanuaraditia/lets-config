@@ -101,25 +101,21 @@ setBaseRuntimeConfig(baseConfig);
 ### 3. Root layout
 
 ```tsx
-// app/root.tsx
-import { useLoaderData, Outlet } from "react-router";
+// app/root.tsx — no loader needed for public config
+import { Outlet } from "react-router";
 import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 import { RuntimeConfigProvider, RuntimeConfigScript } from "@yanuaraditia/config-react";
 
-export async function loader() {
-  return { runtimeConfig: useRuntimeConfig() };
-}
-
 export default function Root() {
-  const { runtimeConfig } = useLoaderData<typeof loader>();
+  const config = useRuntimeConfig(); // reads process.env at render time
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <RuntimeConfigScript config={runtimeConfig} />
+        <RuntimeConfigScript config={config} />
       </head>
       <body>
-        <RuntimeConfigProvider config={runtimeConfig}>
+        <RuntimeConfigProvider config={config}>
           <Outlet />
         </RuntimeConfigProvider>
       </body>
@@ -131,25 +127,23 @@ export default function Root() {
 ### 4. Use in components and loaders
 
 ```tsx
-// Any component
+// Any component — just call useRuntimeConfig(), no loader or prop drilling needed
 import { useRuntimeConfig } from "@yanuaraditia/config-react";
 
 export function ApiWidget() {
   const config = useRuntimeConfig();
-  return <span>API: {config.public.apiBase}</span>;
+  return <span>{config.public.appVersion}</span>;
 }
 ```
 
 ```ts
-// Any loader (server-side)
+// Any loader — use server import for private keys (stays server-side)
 import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 
 export async function loader() {
-  const { dbUrl } = useRuntimeConfig();
-  // dbUrl is only available server-side
+  const { dbUrl } = useRuntimeConfig(); // private — never sent to browser
 }
 ```
-
 ---
 
 ## Shopify App (React Router v7)
@@ -212,20 +206,14 @@ setBaseRuntimeConfig(baseConfig);
 ### 5. Root layout with Shopify providers
 
 ```tsx
-// app/root.tsx
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "react-router";
+// app/root.tsx — no loader needed for public config
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { AppProvider } from "@shopify/polaris";
 import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 import { RuntimeConfigProvider, RuntimeConfigScript } from "@yanuaraditia/config-react";
 
-export async function loader() {
-  // Runs alongside your Shopify auth — reads process.env at request time
-  return { runtimeConfig: useRuntimeConfig() };
-}
-
 export default function App() {
-  const { runtimeConfig } = useLoaderData<typeof loader>();
-
+  const config = useRuntimeConfig(); // reads process.env at render time
   return (
     <html lang="en">
       <head>
@@ -233,12 +221,10 @@ export default function App() {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        {/* Seeds window.__RUNTIME_CONFIG__ for client hydration */}
-        <RuntimeConfigScript config={runtimeConfig} />
+        <RuntimeConfigScript config={config} />
       </head>
       <body>
-        {/* RuntimeConfigProvider can nest inside or outside AppProvider */}
-        <RuntimeConfigProvider config={runtimeConfig}>
+        <RuntimeConfigProvider config={config}>
           <AppProvider i18n={{}}>
             <Outlet />
           </AppProvider>
@@ -250,7 +236,6 @@ export default function App() {
   );
 }
 ```
-
 ### 6. Use in routes and components
 
 ```tsx
@@ -261,15 +246,14 @@ import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 import type { LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  // Shopify auth + runtime config coexist naturally
   const { admin } = await authenticate.admin(request);
-  const { shopifyApiKey } = useRuntimeConfig();
-  return { shopifyApiKey };
+  const { shopifyApiKey } = useRuntimeConfig(); // private — stays on server
+  return { shopName: admin.rest.session.shop };
 }
 ```
 
 ```tsx
-// Any component
+// Any component — only public config accessible here
 import { useRuntimeConfig } from "@yanuaraditia/config-react";
 
 export function AppHeader() {

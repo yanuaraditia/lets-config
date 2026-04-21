@@ -31,6 +31,17 @@ describe('useRuntimeConfig hook', () => {
     expect(result.current).toEqual({ public: {} })
   })
 
+  test('strips private keys — only exposes public portion', () => {
+    const fullConfig = { secret: 'do-not-expose', dbUrl: 'postgres://...', public: { apiBase: '/api' } }
+    const { result } = renderHook(() => useRuntimeConfig(), {
+      wrapper: ({ children }) =>
+        React.createElement(RuntimeConfigProvider, { config: fullConfig as AnyRuntimeConfig }, children),
+    })
+    expect((result.current as Record<string, unknown>).secret).toBeUndefined()
+    expect((result.current as Record<string, unknown>).dbUrl).toBeUndefined()
+    expect((result.current as { public: { apiBase: string } }).public.apiBase).toBe('/api')
+  })
+
   test('closest provider wins over window.__RUNTIME_CONFIG__', () => {
     ;(window as unknown as Record<string, unknown>).__RUNTIME_CONFIG__ = {
       public: { apiBase: '/from-window' },

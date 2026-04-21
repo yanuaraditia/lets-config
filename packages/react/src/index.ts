@@ -1,6 +1,6 @@
 // Client-side exports (safe to import in browser bundles)
 export { RuntimeConfigProvider } from './provider'
-export { useRuntimeConfig, useServerRuntimeConfig } from './hook'
+export { useRuntimeConfig } from './hook'
 export { RuntimeConfigScript } from './script'
 export { RuntimeConfigContext } from './context'
 export type { AnyRuntimeConfig } from './context'

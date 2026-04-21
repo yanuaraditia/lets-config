@@ -27,8 +27,11 @@ export function AnyComponent() {
 
 ## React Router v7 (SSR)
 
+Register the base config once at server startup, then `useRuntimeConfig()` works
+in any component — **no loader required** for public config.
+
 ```tsx
-// app/entry.server.tsx  (register base config once, at module load time)
+// app/entry.server.tsx  (register once, at module load time)
 import baseConfig from '~/runtime.config'
 import { setBaseRuntimeConfig } from '@yanuaraditia/config-react/server'
 
@@ -36,25 +39,21 @@ setBaseRuntimeConfig(baseConfig)
 ```
 
 ```tsx
-// app/root.tsx
-import { useLoaderData, Outlet } from 'react-router'
+// app/root.tsx — RuntimeConfigScript seeds window.__RUNTIME_CONFIG__ for the client
+import { Outlet } from 'react-router'
 import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
 import { RuntimeConfigProvider, RuntimeConfigScript } from '@yanuaraditia/config-react'
 
-export async function loader() {
-  return { runtimeConfig: useRuntimeConfig() }
-}
-
 export default function Root() {
-  const { runtimeConfig } = useLoaderData<typeof loader>()
+  // Reads process.env at render time — no loader needed
+  const config = useRuntimeConfig()
   return (
     <html lang="en">
       <head>
-        {/* Seeds window.__RUNTIME_CONFIG__ for client hydration */}
-        <RuntimeConfigScript config={runtimeConfig} />
+        <RuntimeConfigScript config={config} />
       </head>
       <body>
-        <RuntimeConfigProvider config={runtimeConfig}>
+        <RuntimeConfigProvider config={config}>
           <Outlet />
         </RuntimeConfigProvider>
       </body>
@@ -63,33 +62,51 @@ export default function Root() {
 }
 ```
 
+```tsx
+// Any component — reads from window.__RUNTIME_CONFIG__ or the provider
+import { useRuntimeConfig } from '@yanuaraditia/config-react'
+
+export function AppHeader() {
+  const config = useRuntimeConfig()
+  return <span>{config.public.appVersion}</span>
+}
+```
+
+Need private config in a loader? Use the server import there:
+
+```ts
+// app/routes/dashboard.tsx
+import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
+
+export async function loader() {
+  const { dbUrl } = useRuntimeConfig()  // private — never reaches the browser
+  const data = await fetchFromDb(dbUrl)
+  return { data }
+}
+```
 ## Shopify App (React Router v7)
 
 Works with `@shopify/shopify-app-react-router` out of the box.
 `RuntimeConfigProvider` can sit inside or outside Shopify's `AppProvider` — both work.
 
 ```tsx
-// app/root.tsx
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from 'react-router'
+// app/root.tsx — no loader needed for public config
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { AppProvider } from '@shopify/polaris'
 import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
 import { RuntimeConfigProvider, RuntimeConfigScript } from '@yanuaraditia/config-react'
 
-export async function loader() {
-  return { runtimeConfig: useRuntimeConfig() }
-}
-
 export default function App() {
-  const { runtimeConfig } = useLoaderData<typeof loader>()
+  const config = useRuntimeConfig()  // reads process.env at render time
   return (
     <html lang="en">
       <head>
         <Meta />
         <Links />
-        <RuntimeConfigScript config={runtimeConfig} />
+        <RuntimeConfigScript config={config} />
       </head>
       <body>
-        <RuntimeConfigProvider config={runtimeConfig}>
+        <RuntimeConfigProvider config={config}>
           <AppProvider i18n={{}}>
             <Outlet />
           </AppProvider>
@@ -103,26 +120,36 @@ export default function App() {
 ```
 
 ```tsx
-// app/routes/app._index.tsx — runtime config + Shopify auth together
+// app/routes/app._index.tsx — private config stays on the server
 import { authenticate } from '~/shopify.server'
 import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
 import type { LoaderFunctionArgs } from 'react-router'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request)
-  const { shopifyApiKey, public: publicConfig } = useRuntimeConfig()
-  return { shopifyApiKey, publicConfig }
+  const { shopifyApiKey } = useRuntimeConfig()  // private — never returned to client
+  const data = await callSomeApi(shopifyApiKey)
+  return { data }
 }
 ```
 
+```tsx
+// Any component — just call useRuntimeConfig(), no loader or prop drilling needed
+import { useRuntimeConfig } from '@yanuaraditia/config-react'
+
+export function AppHeader() {
+  const config = useRuntimeConfig()
+  return <h1>{config.public.appName}</h1>
+}
+```
 ## API
 
 | Export | Description |
 |---|---|
-| `useRuntimeConfig()` | Hook — returns config from context or `window.__RUNTIME_CONFIG__` |
-| `RuntimeConfigProvider` | Context provider — wraps your app |
+| `useRuntimeConfig()` *(client)* | Hook — returns public config from context or `window.__RUNTIME_CONFIG__` |
+| `RuntimeConfigProvider` | Context provider — exposes public config to the React tree |
 | `RuntimeConfigScript` | Inline `<script>` that seeds `window.__RUNTIME_CONFIG__` (SSR) |
-| `useRuntimeConfig()` *(server & client)* | Returns full config with env overrides applied |
+| `useRuntimeConfig()` *(server)* | Returns **full** config (public + private) — use in loaders/actions only |
 | `setBaseRuntimeConfig()` *(server)* | Register your base config once at startup |
 | `createGetRuntimeConfig()` *(server)* | Factory for standalone getters |
 

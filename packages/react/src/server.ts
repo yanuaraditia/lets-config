@@ -2,10 +2,10 @@
  * Server-side runtime config utilities for React Router v7 (and any SSR framework).
  *
  * Import these **only in server code** (loaders, actions, server middleware).
- * They read from `process.env` so they work in Node.js and edge runtimes.
  *
- * `useRuntimeConfig` is the same API as the client-side hook — use it in loaders
- * and server code the same way you would in components.
+ * `useRuntimeConfig()` returns the **full** config (public + private keys) on the
+ * server. Pass it to `<RuntimeConfigProvider>` — the provider automatically strips
+ * private keys so they are never accessible in components.
  *
  * @example
  * ```ts
@@ -13,8 +13,8 @@
  * import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
  *
  * export async function loader() {
- *   const config = useRuntimeConfig()   // reads process.env at request time
- *   return { runtimeConfig: config }
+ *   const config = useRuntimeConfig()  // full config — server only
+ *   return { runtimeConfig: config }   // provider strips private keys for client
  * }
  * ```
  */

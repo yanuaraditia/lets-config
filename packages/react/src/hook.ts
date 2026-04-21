@@ -2,48 +2,32 @@
 
 import { useContext } from 'react'
 import { RuntimeConfigContext } from './context'
-import type { AnyRuntimeConfig } from './context'
-import type { RuntimeConfig, ClientRuntimeConfig } from '@yanuaraditia/config'
+import type { ClientRuntimeConfig } from '@yanuaraditia/config'
 
 /**
- * Access the runtime config from anywhere in your React tree.
+ * Returns the **public** runtime config from the nearest `RuntimeConfigProvider`
+ * or from `window.__RUNTIME_CONFIG__` (injected by the Vite plugin / `<RuntimeConfigScript>`).
  *
- * On the **server** (SSR), the hook returns the full `RuntimeConfig` that was
- * passed to `<RuntimeConfigProvider config={...}>`.
+ * Private keys are never available here — they exist only on the server.
+ * TypeScript enforces this: accessing anything outside `config.public` is a compile error.
  *
- * On the **client**, it returns the public portion that was injected by the
- * Vite plugin (`window.__RUNTIME_CONFIG__`) or an SSR provider.
- *
- * @example
  * ```tsx
  * function ApiClient() {
- *   const config = useRuntimeConfig()
- *   return <span>{config.public.apiBase}</span>
+ *   const { public: { apiBase } } = useRuntimeConfig()
+ *   return <span>{apiBase}</span>
  * }
  * ```
  */
-export function useRuntimeConfig(): AnyRuntimeConfig {
+export function useRuntimeConfig(): ClientRuntimeConfig {
   const ctx = useContext(RuntimeConfigContext)
 
-  if (ctx !== null) return ctx
+  if (ctx !== null) return ctx as ClientRuntimeConfig
 
-  // Outside a provider (e.g. during SPA hydration before React mounts):
-  // try window.__RUNTIME_CONFIG__ as a last resort.
+  // Outside a provider (SPA before React mounts): try window.__RUNTIME_CONFIG__
   if (typeof window !== 'undefined') {
-    const win = window as unknown as {
-      __RUNTIME_CONFIG__?: ClientRuntimeConfig
-    }
+    const win = window as unknown as { __RUNTIME_CONFIG__?: ClientRuntimeConfig }
     if (win.__RUNTIME_CONFIG__) return win.__RUNTIME_CONFIG__
   }
 
-  // SSR without a provider — return an empty config so the app doesn't crash.
   return { public: {} } as ClientRuntimeConfig
-}
-
-/**
- * Typed variant: useRuntimeConfig() narrowed to the full server RuntimeConfig.
- * Only call this in code that runs exclusively on the server (e.g. loaders).
- */
-export function useServerRuntimeConfig(): RuntimeConfig {
-  return useRuntimeConfig() as RuntimeConfig
 }
