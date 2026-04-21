@@ -1,6 +1,6 @@
 {
   "name": "@yanuaraditia/config-vite",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Vite plugin for @runtime-config — HTML injection, virtual modules, HMR, type generation",
   "homepage": "https://github.com/yanuaraditia/config#readme",
   "repository": {
@@ -55,7 +55,7 @@
     "jiti": "^2.6.1"
   },
   "dependencies": {
-    "@yanuaraditia/config": "^0.1.5"
+    "@yanuaraditia/config": "^0.1.6"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
