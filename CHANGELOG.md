@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.5
+
+[compare changes](https://github.com/yanuaraditia/config/compare/v0.1.4...v0.1.5)
+
+### 🚀 Enhancements
+
+- Enhance useRuntimeConfig to strip private keys and improve documentation ([cb96f5b](https://github.com/yanuaraditia/config/commit/cb96f5b))
+- Add sync-versions script and update package versions to 0.1.4 ([9b1a100](https://github.com/yanuaraditia/config/commit/9b1a100))
+
+### ❤️ Contributors
+
+- Yanuar Aditia ([@ngalor](https://github.com/ngalor))
+
 ## v0.1.4
 
 [compare changes](https://github.com/yanuaraditia/config/compare/v0.1.3...v0.1.4)
