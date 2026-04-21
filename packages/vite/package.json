@@ -1,6 +1,6 @@
 {
   "name": "@yanuaraditia/config-vite",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Vite plugin for @runtime-config — HTML injection, virtual modules, HMR, type generation",
   "keywords": [
     "vite-plugin",

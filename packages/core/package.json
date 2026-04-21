@@ -1,8 +1,13 @@
 {
   "name": "@yanuaraditia/config",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Framework-agnostic runtime config core — types, defineRuntimeConfig, env overrides",
-  "keywords": ["runtime-config", "vite", "nuxt", "useRuntimeConfig"],
+  "keywords": [
+    "runtime-config",
+    "vite",
+    "nuxt",
+    "useRuntimeConfig"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -23,7 +28,9 @@
       }
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown",
     "prepublishOnly": "bun run build",
