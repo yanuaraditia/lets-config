@@ -11,31 +11,47 @@ const RESOLVED_VIRTUAL_ID = '\0' + VIRTUAL_ID
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 /**
- * Load a TS/JS config file at runtime using jiti (bundled) or plain require as
- * a fallback. Returns the default export.
+ * Load a TS/JS config file at runtime.
+ *
+ * useJiti behaviour:
+ *   true       → require jiti; throw if not installed
+ *   false      → skip jiti; use plain require()
+ *   undefined  → try jiti; fall back to plain require()
  */
-async function loadConfigFile(filePath: string): Promise<RuntimeConfigInput> {
-  // Try jiti first (handles TypeScript natively)
-  try {
-    // Dynamic import so consumers don't need jiti unless they use config files
-    const { createJiti } = await import('jiti')
-    const jiti = createJiti(import.meta.url, { interopDefault: true })
-    const mod = await jiti.import(filePath)
-    return (mod as { default?: RuntimeConfigInput }).default ?? (mod as RuntimeConfigInput)
-  } catch {
-    // Fallback: plain require (works for pre-compiled JS configs)
+async function loadConfigFile(filePath: string, useJiti?: boolean): Promise<RuntimeConfigInput> {
+  // ── jiti path ─────────────────────────────────────────────────────────────
+  if (useJiti !== false) {
     try {
-      const _require = createRequire(import.meta.url)
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mod = _require(filePath) as { default?: RuntimeConfigInput }
-      return mod.default ?? (mod as unknown as RuntimeConfigInput)
-    } catch (e) {
-      throw new Error(
-        `[runtime-config] Failed to load config file "${filePath}".\n` +
-          `Install "jiti" to support TypeScript config files: pnpm add -D jiti\n` +
-          String(e),
-      )
+      const { createJiti } = await import('jiti')
+      const jiti = createJiti(import.meta.url, { interopDefault: true })
+      const mod = await jiti.import(filePath)
+      return (mod as { default?: RuntimeConfigInput }).default ?? (mod as RuntimeConfigInput)
+    } catch (err) {
+      if (useJiti === true) {
+        throw new Error(
+          `[runtime-config] jiti is required (useJiti: true) but could not be loaded.\n` +
+            `Install it: bun add -D jiti\n` +
+            String(err),
+        )
+      }
+      // useJiti === undefined → fall through to require() below
     }
+  }
+
+  // ── plain require() fallback ───────────────────────────────────────────────
+  try {
+    const _require = createRequire(import.meta.url)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = _require(filePath) as { default?: RuntimeConfigInput }
+    return mod.default ?? (mod as unknown as RuntimeConfigInput)
+  } catch (e) {
+    throw new Error(
+      `[runtime-config] Failed to load config file "${filePath}".\n` +
+        (useJiti === false
+          ? ''
+          : `Install "jiti" to support TypeScript config files: bun add -D jiti\n`) +
+        String(e),
+    )
   }
 }
 
@@ -89,6 +105,7 @@ export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): P
     configFile = './runtime.config.ts',
     envPrefix = 'RUNTIME_',
     generateTypes = false,
+    useJiti,
   } = options
 
   let resolvedViteConfig: ResolvedConfig
@@ -98,7 +115,7 @@ export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): P
 
   async function loadAndApply(): Promise<RuntimeConfigInput> {
     if (configFilePath && existsSync(configFilePath)) {
-      baseConfig = await loadConfigFile(configFilePath)
+      baseConfig = await loadConfigFile(configFilePath, useJiti)
     }
     return applyEnvOverrides(baseConfig, process.env as Record<string, string | undefined>, envPrefix)
   }
@@ -137,7 +154,7 @@ export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): P
       }
 
       // Load initial config
-      baseConfig = configFilePath ? await loadConfigFile(configFilePath) : {}
+      baseConfig = configFilePath ? await loadConfigFile(configFilePath, useJiti) : {}
 
       if (generateTypes && configFilePath) {
         generateTypeFile(baseConfig, configFilePath)
@@ -189,7 +206,7 @@ export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): P
       if (file !== configFilePath) return
 
       // Reload base config
-      baseConfig = await loadConfigFile(file)
+      baseConfig = await loadConfigFile(file, useJiti)
 
       if (generateTypes && configFilePath) {
         generateTypeFile(baseConfig, configFilePath)

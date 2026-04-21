@@ -2,6 +2,15 @@
   "name": "@yanuaraditia/config-vite",
   "version": "0.1.3",
   "description": "Vite plugin for @runtime-config — HTML injection, virtual modules, HMR, type generation",
+  "homepage": "https://github.com/yanuaraditia/run-config#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yanuaraditia/run-config.git",
+    "directory": "packages/vite"
+  },
+  "bugs": {
+    "url": "https://github.com/yanuaraditia/run-config/issues"
+  },
   "keywords": [
     "vite-plugin",
     "runtime-config",
@@ -36,7 +45,8 @@
     "build": "tsdown",
     "prepublishOnly": "bun run build",
     "dev": "tsdown --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "bun test"
   },
   "peerDependencies": {
     "vite": "^8.0.9"

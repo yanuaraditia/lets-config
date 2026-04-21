@@ -46,7 +46,8 @@
     "build": "tsdown",
     "prepublishOnly": "bun run build",
     "dev": "tsdown --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "bun test"
   },
   "peerDependencies": {
     "react": "^19.2.5"
@@ -55,6 +56,7 @@
     "@yanuaraditia/config": "workspace:*"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^20.9.0",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "react": "^19.2.5",

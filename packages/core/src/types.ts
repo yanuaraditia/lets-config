@@ -68,4 +68,19 @@ export interface RuntimeConfigPluginOptions {
    * @default false
    */
   generateTypes?: boolean
+
+  /**
+   * Control whether `jiti` is used to load TypeScript config files.
+   *
+   * - `true`  — always use jiti (throws if jiti is not installed)
+   * - `false` — never use jiti, always use plain `require()` (no TypeScript support)
+   * - `undefined` *(default)* — try jiti first; fall back to plain `require()` if unavailable
+   *
+   * Install jiti to load TypeScript config files:
+   * ```bash
+   * bun add -D jiti
+   * ```
+   * @default undefined
+   */
+  useJiti?: boolean
 }
