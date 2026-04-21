@@ -22,8 +22,6 @@ bun add -D @yanuaraditia/config
 
 ### 2. Add the Vite plugin
 
-Define your config inline — no separate file needed:
-
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
@@ -35,10 +33,7 @@ export default defineConfig({
     react(),
     runtimeConfigPlugin({
       config: defineRuntimeConfig({
-        // 🔒 Server-only — never reaches the browser
-        dbUrl: process.env.DATABASE_URL ?? "",
-
-        // 🌐 Public — available on client and server
+        // 🌐 Public — available everywhere
         public: {
           apiBase: process.env.VITE_API_BASE ?? "/api",
           appName: "My App",
@@ -96,62 +91,69 @@ Add to your `tsconfig.json` for `#runtime-config` types:
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
+import { reactRouter } from "@react-router/dev/vite";
 import { runtimeConfigPlugin, defineRuntimeConfig } from "@yanuaraditia/config";
 
 export default defineConfig({
   plugins: [
+    reactRouter(),
     runtimeConfigPlugin({
       config: defineRuntimeConfig({
+        // 🔒 Server-only — never reaches the browser
         dbUrl: process.env.DATABASE_URL ?? "",
+
+        // 🌐 Public — available on client and server
         public: {
           apiBase: process.env.API_BASE ?? "/api",
-          appName: "My App",
+          appVersion: process.env.APP_VERSION ?? "",
         },
       }),
+      generateTypes: true,
     }),
   ],
 });
 ```
 
-### 3. Register base config (server entry)
+### 3. Auto-register in `entry.server.tsx`
 
 ```ts
 // app/entry.server.tsx
-// One import auto-registers the config — no setBaseRuntimeConfig needed!
-import "#runtime-config";
-// …rest of your server entry
+import "#runtime-config"; // one line — auto-registers config at server startup
+
+// …rest of your entry.server.tsx
 ```
 
-### 3. Root layout
+### 4. Root layout
 
 ```tsx
-// app/root.tsx — no loader needed for public config
-import { Outlet } from "react-router";
-import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
-import { RuntimeConfigProvider, RuntimeConfigScript } from "@yanuaraditia/config-react";
+// app/root.tsx
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { RuntimeConfigProvider } from "@yanuaraditia/config-react/server";
 
-export default function Root() {
-  const config = useRuntimeConfig(); // reads process.env at render time
+export default function App() {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <RuntimeConfigScript config={config} />
+        <Meta />
+        <Links />
       </head>
       <body>
-        <RuntimeConfigProvider config={config}>
+        <RuntimeConfigProvider>
           <Outlet />
         </RuntimeConfigProvider>
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
 }
 ```
 
-### 4. Use in components and loaders
+### 5. Use in components and loaders
 
 ```tsx
-// Any component — just call useRuntimeConfig(), no loader or prop drilling needed
+// Any component — only public config accessible here
 import { useRuntimeConfig } from "@yanuaraditia/config-react";
 
 export function ApiWidget() {
@@ -161,13 +163,14 @@ export function ApiWidget() {
 ```
 
 ```ts
-// Any loader — use server import for private keys (stays server-side)
+// Any loader — use server import for private keys
 import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 
 export async function loader() {
   const { dbUrl } = useRuntimeConfig(); // private — never sent to browser
 }
 ```
+
 ---
 
 ## Shopify App (React Router v7)
@@ -181,7 +184,7 @@ bun add @yanuaraditia/config-react
 bun add -D @yanuaraditia/config
 ```
 
-Add to your `tsconfig.json` for `#runtime-config` types:
+Add to your `tsconfig.json`:
 
 ```json
 { "compilerOptions": { "types": ["@yanuaraditia/config/virtual"] } }
@@ -192,20 +195,21 @@ Add to your `tsconfig.json` for `#runtime-config` types:
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
+import { reactRouter } from "@react-router/dev/vite";
 import { runtimeConfigPlugin, defineRuntimeConfig } from "@yanuaraditia/config";
 
 export default defineConfig({
   plugins: [
-    // …your existing plugins (e.g. shopifyApp())
+    reactRouter(),
     runtimeConfigPlugin({
       config: defineRuntimeConfig({
         // 🔒 Server-only
         shopifyApiKey: process.env.SHOPIFY_API_KEY ?? "",
 
-        // 🌐 Public (safe to expose)
+        // 🌐 Public
         public: {
-          appName: "My Shopify App",
-          apiBase: "/api",
+          appVersion: process.env.APP_VERSION ?? "",
+          csPhoneNumber: process.env.CUSTOMER_SUPPORT_PHONE ?? "",
         },
       }),
       generateTypes: true,
@@ -214,41 +218,34 @@ export default defineConfig({
 });
 ```
 
-### 3. Register config in `entry.server.tsx`
+### 3. Auto-register in `entry.server.tsx`
 
-```tsx
+```ts
 // app/entry.server.tsx
-// One import auto-registers the config — no setBaseRuntimeConfig needed!
-import "#runtime-config";
+import "#runtime-config"; // one line — auto-registers config at server startup
 
-// …rest of your entry.server.tsx (renderToPipeableStream, etc.)
+// …rest of your entry.server.tsx
 ```
 
-### 5. Root layout with Shopify providers
+### 4. Root layout
 
 ```tsx
-// app/root.tsx — no loader needed for public config
+// app/root.tsx
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import { AppProvider } from "@shopify/polaris";
-import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
-import { RuntimeConfigProvider, RuntimeConfigScript } from "@yanuaraditia/config-react";
+import { RuntimeConfigProvider } from "@yanuaraditia/config-react/server";
 
 export default function App() {
-  const config = useRuntimeConfig(); // reads process.env at render time
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        <RuntimeConfigScript config={config} />
       </head>
       <body>
-        <RuntimeConfigProvider config={config}>
-          <AppProvider i18n={{}}>
-            <Outlet />
-          </AppProvider>
+        <RuntimeConfigProvider>
+          <Outlet />
         </RuntimeConfigProvider>
         <ScrollRestoration />
         <Scripts />
@@ -257,11 +254,11 @@ export default function App() {
   );
 }
 ```
-### 6. Use in routes and components
 
-```tsx
+### 5. Use in routes and components
+
+```ts
 // app/routes/app._index.tsx
-import { useLoaderData } from "react-router";
 import { authenticate } from "~/shopify.server";
 import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 import type { LoaderFunctionArgs } from "react-router";
@@ -277,26 +274,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 // Any component — only public config accessible here
 import { useRuntimeConfig } from "@yanuaraditia/config-react";
 
-export function AppHeader() {
+export function SupportCard() {
   const config = useRuntimeConfig();
-  return <h1>{config.public.appName}</h1>;
+  return <a href={`https://wa.me/${config.public.csPhoneNumber}`}>Contact Support</a>;
 }
 ```
-
-> **Tip**: `RuntimeConfigScript` must be placed **before** `<Scripts />` so that
-> `window.__RUNTIME_CONFIG__` is available when React hydrates.
 
 ---
 
 ## Environment variable overrides
 
-Override any config key at runtime without a rebuild.
+Override any config value at runtime without a rebuild using the `RUNTIME_` prefix convention.
 
-| Env var                                   | Config path                           |
-| ----------------------------------------- | ------------------------------------- |
-| `RUNTIME_PUBLIC_API_BASE`                 | `config.public.apiBase`               |
-| `RUNTIME_PUBLIC_APP_NAME`                 | `config.public.appName`               |
-| `RUNTIME_DB_URL`                          | `config.dbUrl`                        |
+| Env var | Config path |
+| --- | --- |
+| `RUNTIME_PUBLIC_API_BASE` | `config.public.apiBase` |
+| `RUNTIME_PUBLIC_APP_VERSION` | `config.public.appVersion` |
+| `RUNTIME_DB_URL` | `config.dbUrl` |
 | `RUNTIME_PUBLIC_FEATURE_FLAGS__DARK_MODE` | `config.public.featureFlags.darkMode` |
 
 Rules:
@@ -304,45 +298,27 @@ Rules:
 - Prefix: `RUNTIME_` (configurable via `envPrefix` option)
 - Public keys: `RUNTIME_PUBLIC_<KEY>`
 - Private keys: `RUNTIME_<KEY>`
-- camelCase word boundary: `_` (e.g. `API_BASE` → `apiBase`)
-- Nesting separator: `__` (double underscore)
+- camelCase → `_` (e.g. `APP_VERSION` → `appVersion`)
+- Nesting → `__` (double underscore)
 
 ---
 
 ## TypeScript types
 
-With `generateTypes: true`, the Vite plugin writes a `runtime-config.d.ts` file
-next to your config file automatically. You can also declare types manually:
+With `generateTypes: true`, a `runtime-config.d.ts` is written to your project root automatically. Or declare manually:
 
 ```ts
-// src/runtime-config.d.ts
+// runtime-config.d.ts
 declare module "@yanuaraditia/config" {
   interface PrivateRuntimeConfig {
     dbUrl: string;
+    shopifyApiKey: string;
   }
   interface PublicRuntimeConfig {
     apiBase: string;
-    appName: string;
+    appVersion: string;
   }
 }
-```
-
----
-
-## Virtual module (advanced SSR)
-
-Import the full config directly in server-side code:
-
-```ts
-import config from "#runtime-config";
-// config.dbUrl, config.public.apiBase …
-```
-
-Add type support:
-
-```json
-// tsconfig.json
-{ "compilerOptions": { "types": ["@yanuaraditia/config/virtual"] } }
 ```
 
 ---
@@ -350,3 +326,4 @@ Add type support:
 ## License
 
 [MIT](./LICENSE) © Yanuar Aditia
+
