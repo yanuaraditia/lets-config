@@ -23,6 +23,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsdown",
+    "prepublishOnly": "bun run build",
     "dev": "tsdown --watch",
     "clean": "rm -rf dist"
   },

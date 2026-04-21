@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "React bindings for @runtime-config — useRuntimeConfig hook, provider, SSR utilities",
   "keywords": ["runtime-config", "react", "vite", "useRuntimeConfig", "react-router"],
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -33,6 +36,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsdown",
+    "prepublishOnly": "bun run build",
     "dev": "tsdown --watch",
     "clean": "rm -rf dist"
   },
