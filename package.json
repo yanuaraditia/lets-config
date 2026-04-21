@@ -1,9 +1,11 @@
 {
   "name": "runtime-config-monorepo",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic runtime config — inspired by Nuxt 3/4 useRuntimeConfig",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "bun --filter='*' run build",
     "dev": "bun --filter='*' run dev",
