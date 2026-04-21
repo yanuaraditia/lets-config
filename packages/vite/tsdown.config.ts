@@ -6,6 +6,6 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: ['vite', 'jiti', 'lets-config'],
+  deps: { neverBundle: ['vite', 'jiti', 'lets-config'] },
   platform: 'node',
 })
