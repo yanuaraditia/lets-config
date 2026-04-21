@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.9
+
+[compare changes](https://github.com/yanuaraditia/config/compare/v0.1.8...v0.1.9)
+
+### 🚀 Enhancements
+
+- Bump version to 0.1.8 for react and vite packages ([1a0d372](https://github.com/yanuaraditia/config/commit/1a0d372))
+- Add TypeScript configuration for runtime-config types and streamline server config setup ([df9dcdb](https://github.com/yanuaraditia/config/commit/df9dcdb))
+
+### ❤️ Contributors
+
+- Yanuar Aditia ([@ngalor](https://github.com/ngalor))
+
 ## v0.1.8
 
 [compare changes](https://github.com/yanuaraditia/config/compare/v0.1.7...v0.1.8)
