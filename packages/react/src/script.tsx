@@ -1,6 +1,6 @@
 import React from 'react'
-import { serializePublicConfig } from '0config'
-import type { RuntimeConfigInput } from '0config'
+import { serializePublicConfig } from '@yanuaraditia/config'
+import type { RuntimeConfigInput } from '@yanuaraditia/config'
 
 export interface RuntimeConfigScriptProps {
   /**
@@ -27,8 +27,8 @@ export interface RuntimeConfigScriptProps {
  * @example
  * ```tsx
  * // app/root.tsx — React Router v7 SSR
- * import { getRuntimeConfig } from '@0config/react/server'
- * import { RuntimeConfigScript } from '@0config/react'
+ * import { getRuntimeConfig } from '@yanuaraditia/config-react/server'
+ * import { RuntimeConfigScript } from '@yanuaraditia/config-react'
  *
  * export async function loader() {
  *   return { runtimeConfig: getRuntimeConfig() }

@@ -7,7 +7,7 @@
  * @example
  * ```ts
  * // app/root.tsx
- * import { getRuntimeConfig } from '@0config/react/server'
+ * import { getRuntimeConfig } from '@yanuaraditia/config-react/server'
  *
  * export async function loader() {
  *   const config = getRuntimeConfig()   // reads process.env at request time
@@ -16,8 +16,8 @@
  * ```
  */
 
-import { applyEnvOverrides } from '0config'
-import type { RuntimeConfigInput, RuntimeConfig } from '0config'
+import { applyEnvOverrides } from '@yanuaraditia/config'
+import type { RuntimeConfigInput, RuntimeConfig } from '@yanuaraditia/config'
 
 let _baseConfig: RuntimeConfigInput | null = null
 let _envPrefix = 'RUNTIME_'
@@ -32,7 +32,7 @@ let _envPrefix = 'RUNTIME_'
  * ```ts
  * // app/entry.server.tsx  OR  app/root.tsx (top of file)
  * import baseConfig from '~/runtime.config'
- * import { setBaseRuntimeConfig } from '@0config/react/server'
+ * import { setBaseRuntimeConfig } from '@yanuaraditia/config-react/server'
  *
  * setBaseRuntimeConfig(baseConfig, { envPrefix: 'RUNTIME_' })
  * ```
@@ -72,7 +72,7 @@ export function getRuntimeConfig(): RuntimeConfig {
  * @example
  * ```ts
  * import baseConfig from '~/runtime.config'
- * import { createGetRuntimeConfig } from '@0config/react/server'
+ * import { createGetRuntimeConfig } from '@yanuaraditia/config-react/server'
  *
  * export const getRuntimeConfig = createGetRuntimeConfig(baseConfig)
  * ```

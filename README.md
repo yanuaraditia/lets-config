@@ -1,4 +1,4 @@
-# 0config
+# @yanuaraditia/config
 
 > Framework-agnostic `useRuntimeConfig` for Vite + React — inspired by Nuxt 3/4.
 
@@ -6,9 +6,9 @@
 
 | Package | Version | Downloads | License |
 | --- | --- | --- | --- |
-| [`0config`](./packages/core) | [![npm](https://img.shields.io/npm/v/0config?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/0config) | [![npm downloads](https://img.shields.io/npm/dm/0config?style=flat-square)](https://www.npmjs.com/package/0config) | [![license](https://img.shields.io/npm/l/0config?style=flat-square)](./LICENSE) |
-| [`@0config/vite`](./packages/vite) | [![npm](https://img.shields.io/npm/v/%400config%2Fvite?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@0config/vite) | [![npm downloads](https://img.shields.io/npm/dm/%400config%2Fvite?style=flat-square)](https://www.npmjs.com/package/@0config/vite) | [![license](https://img.shields.io/npm/l/%400config%2Fvite?style=flat-square)](./LICENSE) |
-| [`@0config/react`](./packages/react) | [![npm](https://img.shields.io/npm/v/%400config%2Freact?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@0config/react) | [![npm downloads](https://img.shields.io/npm/dm/%400config%2Freact?style=flat-square)](https://www.npmjs.com/package/@0config/react) | [![license](https://img.shields.io/npm/l/%400config%2Freact?style=flat-square)](./LICENSE) |
+| [`@yanuaraditia/config`](./packages/core) | [![npm](https://img.shields.io/npm/v/%40yanuaraditia%2Fconfig?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@yanuaraditia/config) | [![npm downloads](https://img.shields.io/npm/dm/%40yanuaraditia%2Fconfig?style=flat-square)](https://www.npmjs.com/package/@yanuaraditia/config) | [![license](https://img.shields.io/npm/l/%40yanuaraditia%2Fconfig?style=flat-square)](./LICENSE) |
+| [`@yanuaraditia/config-vite`](./packages/vite) | [![npm](https://img.shields.io/npm/v/%40yanuaraditia%2Fconfig-vite?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@yanuaraditia/config-vite) | [![npm downloads](https://img.shields.io/npm/dm/%40yanuaraditia%2Fconfig-vite?style=flat-square)](https://www.npmjs.com/package/@yanuaraditia/config-vite) | [![license](https://img.shields.io/npm/l/%40yanuaraditia%2Fconfig-vite?style=flat-square)](./LICENSE) |
+| [`@yanuaraditia/config-react`](./packages/react) | [![npm](https://img.shields.io/npm/v/%40yanuaraditia%2Fconfig-react?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@yanuaraditia/config-react) | [![npm downloads](https://img.shields.io/npm/dm/%40yanuaraditia%2Fconfig-react?style=flat-square)](https://www.npmjs.com/package/@yanuaraditia/config-react) | [![license](https://img.shields.io/npm/l/%40yanuaraditia%2Fconfig-react?style=flat-square)](./LICENSE) |
 
 ---
 
@@ -17,15 +17,15 @@
 ### 1. Install
 
 ```bash
-bun add 0config @0config/react
-bun add -D @0config/vite jiti
+bun add @yanuaraditia/config @yanuaraditia/config-react
+bun add -D @yanuaraditia/config-vite jiti
 ```
 
 ### 2. Define your config
 
 ```ts
 // runtime.config.ts
-import { defineRuntimeConfig } from "0config";
+import { defineRuntimeConfig } from "@yanuaraditia/config";
 
 export default defineRuntimeConfig({
   // 🔒 Server-only — never reaches the browser
@@ -45,7 +45,7 @@ export default defineRuntimeConfig({
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { runtimeConfigPlugin } from "@0config/vite";
+import { runtimeConfigPlugin } from "@yanuaraditia/config-vite";
 
 export default defineConfig({
   plugins: [react(), runtimeConfigPlugin({ generateTypes: true })],
@@ -56,7 +56,7 @@ export default defineConfig({
 
 ```tsx
 // main.tsx
-import { RuntimeConfigProvider } from "@0config/react";
+import { RuntimeConfigProvider } from "@yanuaraditia/config-react";
 
 createRoot(document.getElementById("root")!).render(
   <RuntimeConfigProvider>
@@ -68,7 +68,7 @@ createRoot(document.getElementById("root")!).render(
 ### 5. Use it anywhere
 
 ```tsx
-import { useRuntimeConfig } from "@0config/react";
+import { useRuntimeConfig } from "@yanuaraditia/config-react";
 
 export function Header() {
   const config = useRuntimeConfig();
@@ -83,8 +83,8 @@ export function Header() {
 ### 1. Install
 
 ```bash
-bun add 0config @0config/react
-bun add -D @0config/vite jiti
+bun add @yanuaraditia/config @yanuaraditia/config-react
+bun add -D @yanuaraditia/config-vite jiti
 ```
 
 ### 2. Register base config (server entry)
@@ -92,7 +92,7 @@ bun add -D @0config/vite jiti
 ```ts
 // app/entry.server.tsx
 import baseConfig from "~/runtime.config";
-import { setBaseRuntimeConfig } from "@0config/react/server";
+import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
 
 setBaseRuntimeConfig(baseConfig);
 // …rest of your server entry
@@ -103,8 +103,8 @@ setBaseRuntimeConfig(baseConfig);
 ```tsx
 // app/root.tsx
 import { useLoaderData, Outlet } from "react-router";
-import { getRuntimeConfig } from "@0config/react/server";
-import { RuntimeConfigProvider, RuntimeConfigScript } from "@0config/react";
+import { getRuntimeConfig } from "@yanuaraditia/config-react/server";
+import { RuntimeConfigProvider, RuntimeConfigScript } from "@yanuaraditia/config-react";
 
 export async function loader() {
   return { runtimeConfig: getRuntimeConfig() };
@@ -132,7 +132,7 @@ export default function Root() {
 
 ```tsx
 // Any component
-import { useRuntimeConfig } from "@0config/react";
+import { useRuntimeConfig } from "@yanuaraditia/config-react";
 
 export function ApiWidget() {
   const config = useRuntimeConfig();
@@ -142,7 +142,7 @@ export function ApiWidget() {
 
 ```ts
 // Any loader (server-side)
-import { getRuntimeConfig } from "@0config/react/server";
+import { getRuntimeConfig } from "@yanuaraditia/config-react/server";
 
 export async function loader() {
   const { dbUrl } = getRuntimeConfig();
@@ -180,7 +180,7 @@ next to your config file automatically. You can also declare types manually:
 
 ```ts
 // src/runtime-config.d.ts
-declare module "0config" {
+declare module "@yanuaraditia/config" {
   interface PrivateRuntimeConfig {
     dbUrl: string;
   }
@@ -206,7 +206,7 @@ Add type support:
 
 ```json
 // tsconfig.json
-{ "compilerOptions": { "types": ["@0config/vite/virtual"] } }
+{ "compilerOptions": { "types": ["@yanuaraditia/config-vite/virtual"] } }
 ```
 
 ---

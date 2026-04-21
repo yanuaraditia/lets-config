@@ -1,5 +1,5 @@
 {
-  "name": "@0config/vite",
+  "name": "@yanuaraditia/config-vite",
   "version": "0.1.0",
   "description": "Vite plugin for @runtime-config — HTML injection, virtual modules, HMR, type generation",
   "keywords": [
@@ -45,7 +45,7 @@
     "jiti": "^2.6.1"
   },
   "dependencies": {
-    "0config": "workspace:*"
+    "@yanuaraditia/config": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

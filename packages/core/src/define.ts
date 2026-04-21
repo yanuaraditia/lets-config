@@ -5,7 +5,7 @@ import type { RuntimeConfigInput } from './types'
  *
  * @example
  * // runtime.config.ts
- * import { defineRuntimeConfig } from '0config'
+ * import { defineRuntimeConfig } from '@yanuaraditia/config'
  *
  * export default defineRuntimeConfig({
  *   dbUrl: process.env.DATABASE_URL ?? '',   // server-only

@@ -8,7 +8,7 @@ export default defineConfig([
     dts: true,
     sourcemap: true,
     clean: true,
-    deps: { neverBundle: ['react', 'react-dom', '0config'] },
+    deps: { neverBundle: ['react', 'react-dom', '@yanuaraditia/config'] },
   },
   // Server bundle
   {
@@ -16,7 +16,7 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     sourcemap: true,
-    deps: { neverBundle: ['react', 'react-dom', '0config'] },
+    deps: { neverBundle: ['react', 'react-dom', '@yanuaraditia/config'] },
     platform: 'node',
   },
 ])

@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { RuntimeConfig, ClientRuntimeConfig } from '0config'
+import type { RuntimeConfig, ClientRuntimeConfig } from '@yanuaraditia/config'
 
 // On the server: RuntimeConfig (public + private).
 // On the client: ClientRuntimeConfig (public only), sourced from

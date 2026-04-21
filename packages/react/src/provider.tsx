@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { readClientConfig } from '0config'
+import { readClientConfig } from '@yanuaraditia/config'
 import { RuntimeConfigContext } from './context'
 import type { AnyRuntimeConfig } from './context'
 
@@ -34,7 +34,7 @@ export interface RuntimeConfigProviderProps {
  * ### React Router v7 SSR usage
  * ```tsx
  * // app/root.tsx
- * import { getRuntimeConfig } from '@0config/react/server'
+ * import { getRuntimeConfig } from '@yanuaraditia/config-react/server'
  *
  * export async function loader() {
  *   return { runtimeConfig: getRuntimeConfig() }

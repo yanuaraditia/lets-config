@@ -6,6 +6,6 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  deps: { neverBundle: ['vite', 'jiti', '0config'] },
+  deps: { neverBundle: ['vite', 'jiti', '@yanuaraditia/config'] },
   platform: 'node',
 })
