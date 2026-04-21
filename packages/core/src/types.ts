@@ -43,44 +43,4 @@ export type RuntimeConfigInput = PrivateRuntimeConfig & {
 } & Record<string, unknown>
 
 // ─── Options ─────────────────────────────────────────────────────────────────
-
-export interface RuntimeConfigPluginOptions {
-  /**
-   * Path to your runtime config file (relative to project root).
-   * @default './runtime.config.ts'
-   */
-  configFile?: string
-
-  /**
-   * Environment variable prefix used for overrides.
-   *
-   * Convention (mirrors Nuxt):
-   *   {PREFIX}PUBLIC_{KEY}  →  config.public.key
-   *   {PREFIX}{KEY}         →  config.key  (private / server-only)
-   *
-   * @default 'RUNTIME_'
-   */
-  envPrefix?: string
-
-  /**
-   * When true, the Vite plugin writes a `runtime-config.d.ts` file next to
-   * your config file so you get typed module augmentation automatically.
-   * @default false
-   */
-  generateTypes?: boolean
-
-  /**
-   * Control whether `jiti` is used to load TypeScript config files.
-   *
-   * - `true`  — always use jiti (throws if jiti is not installed)
-   * - `false` — never use jiti, always use plain `require()` (no TypeScript support)
-   * - `undefined` *(default)* — try jiti first; fall back to plain `require()` if unavailable
-   *
-   * Install jiti to load TypeScript config files:
-   * ```bash
-   * bun add -D jiti
-   * ```
-   * @default undefined
-   */
-  useJiti?: boolean
-}
+// RuntimeConfigPluginOptions lives in @yanuaraditia/config-vite (vite-specific)

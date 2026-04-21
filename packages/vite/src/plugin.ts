@@ -1,67 +1,48 @@
-import type { Plugin, ViteDevServer, ResolvedConfig } from 'vite'
-import { createRequire } from 'module'
-import { writeFileSync, existsSync } from 'fs'
-import { resolve, dirname, relative } from 'path'
-import { applyEnvOverrides, buildConfigScript } from '@yanuaraditia/config'
-import type { RuntimeConfigInput, RuntimeConfigPluginOptions } from '@yanuaraditia/config'
+import type { Plugin, ResolvedConfig } from 'vite'
+import { writeFileSync } from 'fs'
+import { resolve, relative } from 'path'
+import { applyEnvOverrides, buildConfigScript } from '@yanuaraditia/config-core'
+import type { RuntimeConfigInput } from '@yanuaraditia/config-core'
 
-const VIRTUAL_ID = 'virtual:runtime-config'
+const VIRTUAL_ID = '#runtime-config'
 const RESOLVED_VIRTUAL_ID = '\0' + VIRTUAL_ID
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+export interface RuntimeConfigPluginOptions {
+  /**
+   * Your runtime config object — defined inline, no separate file needed.
+   * Use `process.env` to read environment variables at build/dev-server start time.
+   *
+   * @example
+   * runtimeConfigPlugin({
+   *   config: {
+   *     dbUrl: process.env.DATABASE_URL ?? "",
+   *     public: { appVersion: "1.0.0" },
+   *   },
+   * })
+   */
+  config?: RuntimeConfigInput
 
-/**
- * Load a TS/JS config file at runtime.
- *
- * useJiti behaviour:
- *   true       → require jiti; throw if not installed
- *   false      → skip jiti; use plain require()
- *   undefined  → try jiti; fall back to plain require()
- */
-async function loadConfigFile(filePath: string, useJiti?: boolean): Promise<RuntimeConfigInput> {
-  // ── jiti path ─────────────────────────────────────────────────────────────
-  if (useJiti !== false) {
-    try {
-      const { createJiti } = await import('jiti')
-      const jiti = createJiti(import.meta.url, { interopDefault: true })
-      const mod = await jiti.import(filePath)
-      return (mod as { default?: RuntimeConfigInput }).default ?? (mod as RuntimeConfigInput)
-    } catch (err) {
-      if (useJiti === true) {
-        throw new Error(
-          `[runtime-config] jiti is required (useJiti: true) but could not be loaded.\n` +
-            `Install it: bun add -D jiti\n` +
-            String(err),
-        )
-      }
-      // useJiti === undefined → fall through to require() below
-    }
-  }
+  /**
+   * Environment variable prefix used for runtime overrides.
+   *
+   * Convention (mirrors Nuxt):
+   *   {PREFIX}PUBLIC_{KEY}  →  config.public.key
+   *   {PREFIX}{KEY}         →  config.key  (private / server-only)
+   *
+   * @default 'RUNTIME_'
+   */
+  envPrefix?: string
 
-  // ── plain require() fallback ───────────────────────────────────────────────
-  try {
-    const _require = createRequire(import.meta.url)
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = _require(filePath) as { default?: RuntimeConfigInput }
-    return mod.default ?? (mod as unknown as RuntimeConfigInput)
-  } catch (e) {
-    throw new Error(
-      `[runtime-config] Failed to load config file "${filePath}".\n` +
-        (useJiti === false
-          ? ''
-          : `Install "jiti" to support TypeScript config files: bun add -D jiti\n`) +
-        String(e),
-    )
-  }
+  /**
+   * When true, writes a `runtime-config.d.ts` to your project root
+   * with typed module augmentation for useRuntimeConfig().
+   * @default false
+   */
+  generateTypes?: boolean
 }
 
-/**
- * Generate a TypeScript module-augmentation file so that
- * useRuntimeConfig() is fully typed without manual declarations.
- */
-function generateTypeFile(config: RuntimeConfigInput, configFilePath: string): void {
-  const dir = dirname(configFilePath)
-  const outPath = resolve(dir, 'runtime-config.d.ts')
+function generateTypeFile(config: RuntimeConfigInput, root: string): void {
+  const outPath = resolve(root, 'runtime-config.d.ts')
 
   const privateKeys = Object.entries(config)
     .filter(([k]) => k !== 'public')
@@ -86,8 +67,8 @@ ${publicKeys}
   }
 }
 
-declare module 'virtual:runtime-config' {
-  import type { RuntimeConfig } from '@yanuaraditia/config'
+declare module '#runtime-config' {
+  import type { RuntimeConfig } from '@yanuaraditia/config-core'
   const config: RuntimeConfig
   export default config
 }
@@ -98,25 +79,12 @@ export {}
   console.info(`[runtime-config] Types written to ${relative(process.cwd(), outPath)}`)
 }
 
-// ─── plugin ─────────────────────────────────────────────────────────────────
-
 export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): Plugin {
-  const {
-    configFile = './runtime.config.ts',
-    envPrefix = 'RUNTIME_',
-    generateTypes = false,
-    useJiti,
-  } = options
+  const { config: baseConfig = {}, envPrefix = 'RUNTIME_', generateTypes = false } = options
 
   let resolvedViteConfig: ResolvedConfig
-  let baseConfig: RuntimeConfigInput = {}
-  let configFilePath: string | null = null
-  let devServer: ViteDevServer | null = null
 
-  async function loadAndApply(): Promise<RuntimeConfigInput> {
-    if (configFilePath && existsSync(configFilePath)) {
-      baseConfig = await loadConfigFile(configFilePath, useJiti)
-    }
+  function getConfig(): RuntimeConfigInput {
     return applyEnvOverrides(baseConfig, process.env as Record<string, string | undefined>, envPrefix)
   }
 
@@ -124,9 +92,7 @@ export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): P
     name: 'runtime-config',
     enforce: 'pre',
 
-    // ── accept inline config passed directly into the plugin ──────────────
     config() {
-      // Expose the env prefix as a define so client code can reference it
       return {
         define: {
           __RUNTIME_CONFIG_PREFIX__: JSON.stringify(envPrefix),
@@ -134,90 +100,34 @@ export function runtimeConfigPlugin(options: RuntimeConfigPluginOptions = {}): P
       }
     },
 
-    async configResolved(cfg) {
+    configResolved(cfg) {
       resolvedViteConfig = cfg
-      const root = cfg.root
-
-      // Resolve config file path
-      const candidate = resolve(root, configFile)
-      if (existsSync(candidate)) {
-        configFilePath = candidate
-      } else {
-        // Try common extensions
-        for (const ext of ['.ts', '.mts', '.js', '.mjs']) {
-          const alt = resolve(root, configFile.replace(/\.[^.]+$/, '') + ext)
-          if (existsSync(alt)) {
-            configFilePath = alt
-            break
-          }
-        }
-      }
-
-      // Load initial config
-      baseConfig = configFilePath ? await loadConfigFile(configFilePath, useJiti) : {}
-
-      if (generateTypes && configFilePath) {
-        generateTypeFile(baseConfig, configFilePath)
+      if (generateTypes) {
+        generateTypeFile(baseConfig, cfg.root)
       }
     },
-
-    // ── virtual module: virtual:runtime-config ────────────────────────────
 
     resolveId(id) {
       if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID
     },
 
-    async load(id, opts) {
+    load(id, opts) {
       if (id !== RESOLVED_VIRTUAL_ID) return
 
-      const config = await loadAndApply()
+      const config = getConfig()
 
       if (opts?.ssr) {
-        // Server: export full config (public + private)
         return `const config = ${JSON.stringify(config)};\nexport default config;\n`
-      } else {
-        // Client: export only public config — matches window.__RUNTIME_CONFIG__
-        return (
-          `const config = ${JSON.stringify({ public: config.public ?? {} })};\nexport default config;\n`
-        )
       }
+      return `const config = ${JSON.stringify({ public: config.public ?? {} })};\nexport default config;\n`
     },
 
-    // ── SPA: inject public config into HTML ───────────────────────────────
-
-    async transformIndexHtml(html) {
-      // In SSR mode the app injects the script itself via RuntimeConfigScript.
-      // In SPA / dev mode we inject here so the script is always present.
+    transformIndexHtml(html) {
       if (resolvedViteConfig?.build?.ssr) return html
 
-      const config = await loadAndApply()
+      const config = getConfig()
       const script = buildConfigScript(config)
-
       return html.replace(/<head([^>]*)>/, `<head$1>\n    ${script}`)
-    },
-
-    // ── HMR: reload virtual module on config file change ─────────────────
-
-    configureServer(server) {
-      devServer = server
-    },
-
-    async handleHotUpdate({ file }) {
-      if (file !== configFilePath) return
-
-      // Reload base config
-      baseConfig = await loadConfigFile(file, useJiti)
-
-      if (generateTypes && configFilePath) {
-        generateTypeFile(baseConfig, configFilePath)
-      }
-
-      // Invalidate the virtual module so the next import gets fresh data
-      const mod = devServer?.moduleGraph.getModuleById(RESOLVED_VIRTUAL_ID)
-      if (mod) {
-        devServer?.moduleGraph.invalidateModule(mod)
-        devServer?.ws.send({ type: 'full-reload' })
-      }
     },
   }
 }

@@ -1,7 +1,8 @@
 {
-  "name": "@yanuaraditia/config",
+  "name": "@yanuaraditia/config-core",
+  "private": true,
   "version": "0.1.6",
-  "description": "Framework-agnostic runtime config core — types, defineRuntimeConfig, env overrides",
+  "description": "Internal core package — not published",
   "homepage": "https://github.com/yanuaraditia/config#readme",
   "repository": {
     "type": "git",

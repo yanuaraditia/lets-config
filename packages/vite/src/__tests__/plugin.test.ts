@@ -1,11 +1,5 @@
-import { describe, expect, test, beforeEach, afterEach, mock } from 'bun:test'
-import { writeFileSync, mkdirSync, rmSync, existsSync } from 'fs'
-import { resolve, join } from 'path'
+import { describe, expect, test } from 'bun:test'
 import { tmpdir } from 'os'
-
-// ─── loadConfigFile (tested via a re-export shim for testability) ─────────────
-// We can't import loadConfigFile directly (it's not exported). Instead, we test
-// the plugin's behaviour indirectly through the `load` hook.
 
 describe('runtimeConfigPlugin — plugin shape', async () => {
   const { runtimeConfigPlugin } = await import('../index')
@@ -22,8 +16,8 @@ describe('runtimeConfigPlugin — plugin shape', async () => {
 
   test('resolves the virtual module id', () => {
     const plugin = runtimeConfigPlugin()
-    const resolved = (plugin.resolveId as (id: string) => string | undefined)('virtual:runtime-config')
-    expect(resolved).toBe('\0virtual:runtime-config')
+    const resolved = (plugin.resolveId as (id: string) => string | undefined)('#runtime-config')
+    expect(resolved).toBe('\0#runtime-config')
   })
 
   test('returns undefined for non-virtual ids', () => {
@@ -32,131 +26,115 @@ describe('runtimeConfigPlugin — plugin shape', async () => {
     expect(resolved).toBeUndefined()
   })
 
-  test('returns undefined from load for non-virtual ids', async () => {
+  test('returns undefined from load for non-virtual ids', () => {
     const plugin = runtimeConfigPlugin()
-    const result = await (plugin.load as (id: string, opts?: unknown) => Promise<string | undefined>)(
-      'not-a-virtual-id',
-    )
+    const result = (plugin.load as (id: string, opts?: unknown) => string | undefined)('not-a-virtual-id')
     expect(result).toBeUndefined()
   })
 })
 
-describe('runtimeConfigPlugin — load hook', async () => {
+describe('runtimeConfigPlugin — inline config', async () => {
   const { runtimeConfigPlugin } = await import('../index')
 
-  test('client load exports only public config', async () => {
-    const plugin = runtimeConfigPlugin()
-    // Simulate configResolved with no config file so baseConfig stays empty
-    await (plugin.configResolved as (cfg: Record<string, unknown>) => Promise<void>)({
-      root: tmpdir(),
-      build: {},
+  test('client load exports only public config', () => {
+    const plugin = runtimeConfigPlugin({
+      config: { dbUrl: 'postgres://...', public: { appName: 'MyApp' } },
     })
-    const code = await (plugin.load as (id: string, opts?: { ssr?: boolean }) => Promise<string | undefined>)(
-      '\0virtual:runtime-config',
+    ;(plugin.configResolved as (cfg: Record<string, unknown>) => void)({ root: tmpdir(), build: {} })
+
+    const code = (plugin.load as (id: string, opts?: { ssr?: boolean }) => string | undefined)(
+      '\0#runtime-config',
       { ssr: false },
     )
-    expect(code).toContain('public')
-    // Should not contain any private/server keys
-    const exported = code?.match(/const config = (.+);/)?.[1]
-    const parsed = exported ? JSON.parse(exported) : {}
+    const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
     expect(Object.keys(parsed)).toEqual(['public'])
+    expect(parsed.public.appName).toBe('MyApp')
+    expect(parsed.dbUrl).toBeUndefined()
   })
 
-  test('SSR load exports full config', async () => {
+  test('SSR load exports full config including private keys', () => {
+    const plugin = runtimeConfigPlugin({
+      config: { dbUrl: 'postgres://secret', public: { appName: 'MyApp' } },
+    })
+    ;(plugin.configResolved as (cfg: Record<string, unknown>) => void)({ root: tmpdir(), build: {} })
+
+    const code = (plugin.load as (id: string, opts?: { ssr?: boolean }) => string | undefined)(
+      '\0#runtime-config',
+      { ssr: true },
+    )
+    const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
+    expect(parsed.dbUrl).toBe('postgres://secret')
+    expect(parsed.public.appName).toBe('MyApp')
+  })
+
+  test('empty config works without errors', () => {
     const plugin = runtimeConfigPlugin()
-    await (plugin.configResolved as (cfg: Record<string, unknown>) => Promise<void>)({
-      root: tmpdir(),
-      build: {},
-    })
-    const code = await (plugin.load as (id: string, opts?: { ssr?: boolean }) => Promise<string | undefined>)(
-      '\0virtual:runtime-config',
-      { ssr: true },
+    ;(plugin.configResolved as (cfg: Record<string, unknown>) => void)({ root: tmpdir(), build: {} })
+
+    const code = (plugin.load as (id: string, opts?: { ssr?: boolean }) => string | undefined)(
+      '\0#runtime-config',
+      { ssr: false },
     )
-    expect(code).toBeDefined()
+    const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
+    expect(parsed).toEqual({ public: {} })
+  })
+
+  test('defineRuntimeConfig re-export works', async () => {
+    const { defineRuntimeConfig } = await import('../index')
+    const config = defineRuntimeConfig({ public: { appVersion: '2.0.0' } })
+    expect(config.public?.appVersion).toBe('2.0.0')
   })
 })
 
-describe('runtimeConfigPlugin — configResolved with JS config file', () => {
-  let tmpDir: string
-
-  beforeEach(() => {
-    tmpDir = join(tmpdir(), `runtime-config-test-${Date.now()}`)
-    mkdirSync(tmpDir, { recursive: true })
-  })
-
-  afterEach(() => {
-    rmSync(tmpDir, { recursive: true, force: true })
-  })
-
-  test('loads a plain JS config file (no jiti)', async () => {
-    const { runtimeConfigPlugin } = await import('../index')
-
-    // Write a CommonJS config file (require()-compatible)
-    writeFileSync(
-      join(tmpDir, 'runtime.config.js'),
-      `module.exports = { public: { appName: 'LoadedApp' } }`,
-    )
-
-    const plugin = runtimeConfigPlugin({
-      configFile: './runtime.config.js',
-      useJiti: false,  // force plain require(), no jiti
-    })
-
-    await (plugin.configResolved as (cfg: Record<string, unknown>) => Promise<void>)({
-      root: tmpDir,
-      build: {},
-    })
-
-    const code = await (plugin.load as (id: string, opts?: { ssr?: boolean }) => Promise<string | undefined>)(
-      '\0virtual:runtime-config',
-      { ssr: true },
-    )
-    expect(code).toContain('LoadedApp')
-  })
-
-  test('throws when useJiti: true but jiti is unavailable', async () => {
-    const { runtimeConfigPlugin } = await import('../index')
-
-    // Write a TS config file that plain require() cannot parse
-    writeFileSync(
-      join(tmpDir, 'runtime.config.ts'),
-      `export default { public: { appName: 'TSApp' } }`,
-    )
-
-    // Temporarily shadow jiti by overwriting the import resolution
-    // We test the error path by writing a broken config with useJiti:false
-    // (testing that the error is raised when neither loader works)
-    writeFileSync(
-      join(tmpDir, 'broken.config.js'),
-      `this is not valid JS !!!`,
-    )
-
-    const plugin = runtimeConfigPlugin({
-      configFile: './broken.config.js',
-      useJiti: false,
-    })
-
-    await expect(
-      (plugin.configResolved as (cfg: Record<string, unknown>) => Promise<void>)({
-        root: tmpDir,
-        build: {},
-      }),
-    ).rejects.toThrow(/Failed to load config file/)
-  })
-})
-
-describe('runtimeConfigPlugin — useJiti option', async () => {
+describe('runtimeConfigPlugin — env var overrides', async () => {
   const { runtimeConfigPlugin } = await import('../index')
 
-  test('plugin accepts useJiti: false without crashing', () => {
-    expect(() => runtimeConfigPlugin({ useJiti: false })).not.toThrow()
+  test('applies env var overrides to public config', () => {
+    process.env.RUNTIME_PUBLIC_APP_NAME = 'EnvApp'
+    const plugin = runtimeConfigPlugin({
+      config: { public: { appName: 'DefaultApp' } },
+    })
+    ;(plugin.configResolved as (cfg: Record<string, unknown>) => void)({ root: tmpdir(), build: {} })
+
+    const code = (plugin.load as (id: string, opts?: { ssr?: boolean }) => string | undefined)(
+      '\0#runtime-config',
+      { ssr: false },
+    )
+    const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
+    expect(parsed.public.appName).toBe('EnvApp')
+    delete process.env.RUNTIME_PUBLIC_APP_NAME
   })
 
-  test('plugin accepts useJiti: true without crashing', () => {
-    expect(() => runtimeConfigPlugin({ useJiti: true })).not.toThrow()
+  test('applies env var overrides to private config on SSR', () => {
+    process.env.RUNTIME_DB_URL = 'postgres://from-env'
+    const plugin = runtimeConfigPlugin({
+      config: { dbUrl: 'postgres://default' },
+    })
+    ;(plugin.configResolved as (cfg: Record<string, unknown>) => void)({ root: tmpdir(), build: {} })
+
+    const code = (plugin.load as (id: string, opts?: { ssr?: boolean }) => string | undefined)(
+      '\0#runtime-config',
+      { ssr: true },
+    )
+    const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
+    expect(parsed.dbUrl).toBe('postgres://from-env')
+    delete process.env.RUNTIME_DB_URL
   })
 
-  test('plugin accepts useJiti: undefined (default) without crashing', () => {
-    expect(() => runtimeConfigPlugin({ useJiti: undefined })).not.toThrow()
+  test('custom envPrefix is respected', () => {
+    process.env.APP_PUBLIC_VERSION = '3.0.0'
+    const plugin = runtimeConfigPlugin({
+      config: { public: { version: '1.0.0' } },
+      envPrefix: 'APP_',
+    })
+    ;(plugin.configResolved as (cfg: Record<string, unknown>) => void)({ root: tmpdir(), build: {} })
+
+    const code = (plugin.load as (id: string, opts?: { ssr?: boolean }) => string | undefined)(
+      '\0#runtime-config',
+      { ssr: false },
+    )
+    const parsed = JSON.parse(code!.match(/const config = (.+);/)?.[1]!)
+    expect(parsed.public.version).toBe('3.0.0')
+    delete process.env.APP_PUBLIC_VERSION
   })
 })

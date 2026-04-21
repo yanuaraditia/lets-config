@@ -6,8 +6,7 @@
 
 | Package | Version | Downloads | License |
 | --- | --- | --- | --- |
-| [`@yanuaraditia/config`](./packages/core) | [![npm](https://img.shields.io/npm/v/%40yanuaraditia%2Fconfig?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@yanuaraditia/config) | [![npm downloads](https://img.shields.io/npm/dm/%40yanuaraditia%2Fconfig?style=flat-square)](https://www.npmjs.com/package/@yanuaraditia/config) | [![license](https://img.shields.io/npm/l/%40yanuaraditia%2Fconfig?style=flat-square)](./LICENSE) |
-| [`@yanuaraditia/config-vite`](./packages/vite) | [![npm](https://img.shields.io/npm/v/%40yanuaraditia%2Fconfig-vite?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@yanuaraditia/config-vite) | [![npm downloads](https://img.shields.io/npm/dm/%40yanuaraditia%2Fconfig-vite?style=flat-square)](https://www.npmjs.com/package/@yanuaraditia/config-vite) | [![license](https://img.shields.io/npm/l/%40yanuaraditia%2Fconfig-vite?style=flat-square)](./LICENSE) |
+| [`@yanuaraditia/config`](./packages/vite) | [![npm](https://img.shields.io/npm/v/%40yanuaraditia%2Fconfig?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@yanuaraditia/config) | [![npm downloads](https://img.shields.io/npm/dm/%40yanuaraditia%2Fconfig?style=flat-square)](https://www.npmjs.com/package/@yanuaraditia/config) | [![license](https://img.shields.io/npm/l/%40yanuaraditia%2Fconfig?style=flat-square)](./LICENSE) |
 | [`@yanuaraditia/config-react`](./packages/react) | [![npm](https://img.shields.io/npm/v/%40yanuaraditia%2Fconfig-react?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@yanuaraditia/config-react) | [![npm downloads](https://img.shields.io/npm/dm/%40yanuaraditia%2Fconfig-react?style=flat-square)](https://www.npmjs.com/package/@yanuaraditia/config-react) | [![license](https://img.shields.io/npm/l/%40yanuaraditia%2Fconfig-react?style=flat-square)](./LICENSE) |
 
 ---
@@ -17,42 +16,41 @@
 ### 1. Install
 
 ```bash
-bun add @yanuaraditia/config @yanuaraditia/config-react
-bun add -D @yanuaraditia/config-vite jiti
+bun add @yanuaraditia/config-react
+bun add -D @yanuaraditia/config
 ```
 
-### 2. Define your config
+### 2. Add the Vite plugin
 
-```ts
-// runtime.config.ts
-import { defineRuntimeConfig } from "@yanuaraditia/config";
-
-export default defineRuntimeConfig({
-  // 🔒 Server-only — never reaches the browser
-  dbUrl: process.env.DATABASE_URL ?? "",
-
-  // 🌐 Public — available on client and server
-  public: {
-    apiBase: process.env.VITE_API_BASE ?? "/api",
-    appName: "My App",
-  },
-});
-```
-
-### 3. Add the Vite plugin
+Define your config inline — no separate file needed:
 
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { runtimeConfigPlugin } from "@yanuaraditia/config-vite";
+import { runtimeConfigPlugin, defineRuntimeConfig } from "@yanuaraditia/config";
 
 export default defineConfig({
-  plugins: [react(), runtimeConfigPlugin({ generateTypes: true })],
+  plugins: [
+    react(),
+    runtimeConfigPlugin({
+      config: defineRuntimeConfig({
+        // 🔒 Server-only — never reaches the browser
+        dbUrl: process.env.DATABASE_URL ?? "",
+
+        // 🌐 Public — available on client and server
+        public: {
+          apiBase: process.env.VITE_API_BASE ?? "/api",
+          appName: "My App",
+        },
+      }),
+      generateTypes: true,
+    }),
+  ],
 });
 ```
 
-### 4. Wrap your app
+### 3. Wrap your app
 
 ```tsx
 // main.tsx
@@ -65,7 +63,7 @@ createRoot(document.getElementById("root")!).render(
 );
 ```
 
-### 5. Use it anywhere
+### 4. Use it anywhere
 
 ```tsx
 import { useRuntimeConfig } from "@yanuaraditia/config-react";
@@ -83,18 +81,45 @@ export function Header() {
 ### 1. Install
 
 ```bash
-bun add @yanuaraditia/config @yanuaraditia/config-react
-bun add -D @yanuaraditia/config-vite jiti
+bun add @yanuaraditia/config-react
+bun add -D @yanuaraditia/config
 ```
 
-### 2. Register base config (server entry)
+### 2. Add the Vite plugin
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import { runtimeConfigPlugin, defineRuntimeConfig } from "@yanuaraditia/config";
+
+export default defineConfig({
+  plugins: [
+    runtimeConfigPlugin({
+      config: defineRuntimeConfig({
+        dbUrl: process.env.DATABASE_URL ?? "",
+        public: {
+          apiBase: process.env.API_BASE ?? "/api",
+          appName: "My App",
+        },
+      }),
+    }),
+  ],
+});
+```
+
+### 3. Register base config (server entry)
 
 ```ts
 // app/entry.server.tsx
-import baseConfig from "~/runtime.config";
 import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
 
-setBaseRuntimeConfig(baseConfig);
+setBaseRuntimeConfig({
+  dbUrl: process.env.DATABASE_URL ?? "",
+  public: {
+    apiBase: process.env.API_BASE ?? "/api",
+    appName: "My App",
+  },
+});
 // …rest of your server entry
 ```
 
@@ -153,8 +178,8 @@ Works seamlessly with [`@shopify/shopify-app-react-router`](https://www.npmjs.co
 ### 1. Install
 
 ```bash
-bun add @yanuaraditia/config @yanuaraditia/config-react
-bun add -D @yanuaraditia/config-vite jiti
+bun add @yanuaraditia/config-react
+bun add -D @yanuaraditia/config
 ```
 
 ### 2. Add the Vite plugin
@@ -162,43 +187,42 @@ bun add -D @yanuaraditia/config-vite jiti
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
-import { runtimeConfigPlugin } from "@yanuaraditia/config-vite";
+import { runtimeConfigPlugin, defineRuntimeConfig } from "@yanuaraditia/config";
 
 export default defineConfig({
   plugins: [
     // …your existing plugins (e.g. shopifyApp())
-    runtimeConfigPlugin({ generateTypes: true }),
+    runtimeConfigPlugin({
+      config: defineRuntimeConfig({
+        // 🔒 Server-only
+        shopifyApiKey: process.env.SHOPIFY_API_KEY ?? "",
+
+        // 🌐 Public (safe to expose)
+        public: {
+          appName: "My Shopify App",
+          apiBase: "/api",
+        },
+      }),
+      generateTypes: true,
+    }),
   ],
 });
 ```
 
-### 3. Define your config
+### 3. Register config in `entry.server.tsx`
 
-```ts
-// app/runtime.config.ts
-import { defineRuntimeConfig } from "@yanuaraditia/config";
+```tsx
+// app/entry.server.tsx
+import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
 
-export default defineRuntimeConfig({
-  // 🔒 Server-only
+// Register once at module load time (before any request handlers run)
+setBaseRuntimeConfig({
   shopifyApiKey: process.env.SHOPIFY_API_KEY ?? "",
-
-  // 🌐 Public (safe to expose)
   public: {
     appName: "My Shopify App",
     apiBase: "/api",
   },
 });
-```
-
-### 4. Register config in `entry.server.tsx`
-
-```tsx
-// app/entry.server.tsx
-import baseConfig from "~/runtime.config";
-import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
-
-// Register once at module load time (before any request handlers run)
-setBaseRuntimeConfig(baseConfig);
 
 // …rest of your entry.server.tsx (renderToPipeableStream, etc.)
 ```
@@ -313,7 +337,7 @@ declare module "@yanuaraditia/config" {
 Import the full config directly in server-side code:
 
 ```ts
-import config from "virtual:runtime-config";
+import config from "#runtime-config";
 // config.dbUrl, config.public.apiBase …
 ```
 
@@ -321,7 +345,7 @@ Add type support:
 
 ```json
 // tsconfig.json
-{ "compilerOptions": { "types": ["@yanuaraditia/config-vite/virtual"] } }
+{ "compilerOptions": { "types": ["@yanuaraditia/config/virtual"] } }
 ```
 
 ---

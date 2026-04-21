@@ -7,5 +7,4 @@ export type {
   RuntimeConfig,
   ClientRuntimeConfig,
   RuntimeConfigInput,
-  RuntimeConfigPluginOptions,
 } from './types'

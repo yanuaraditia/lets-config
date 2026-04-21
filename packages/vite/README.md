@@ -6,7 +6,7 @@ Vite plugin for `@runtime-config`.
 
 - Reads your `runtime.config.ts` file (TypeScript via **jiti**)
 - **SPA mode**: injects `window.__RUNTIME_CONFIG__` into `index.html`
-- **SSR mode**: exposes `virtual:runtime-config` for server imports
+- **SSR mode**: exposes `#runtime-config` for server imports
 - Applies env-var overrides at dev-server startup / build time
 - HMR — reloads when your config file changes
 - Optional TypeScript type generation
@@ -50,7 +50,7 @@ export default defineRuntimeConfig({
 
 ```ts
 // In a React Router v7 root loader or server entry
-import config from 'virtual:runtime-config'
+import config from '#runtime-config'
 // config.dbUrl, config.public.apiBase …
 ```
 

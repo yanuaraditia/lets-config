@@ -14,7 +14,7 @@ const rootPkg: PackageJson = JSON.parse(
 );
 const { version } = rootPkg;
 
-const packages = ["core", "vite", "react"];
+const packages = ["vite", "react"];
 
 for (const pkg of packages) {
   const pkgPath = resolve(root, "packages", pkg, "package.json");

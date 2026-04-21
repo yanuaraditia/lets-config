@@ -1,7 +1,7 @@
 {
-  "name": "@yanuaraditia/config-vite",
+  "name": "@yanuaraditia/config",
   "version": "0.1.6",
-  "description": "Vite plugin for @runtime-config — HTML injection, virtual modules, HMR, type generation",
+  "description": "Runtime config for Vite + React — defineRuntimeConfig, Vite plugin, env overrides",
   "homepage": "https://github.com/yanuaraditia/config#readme",
   "repository": {
     "type": "git",
@@ -51,15 +51,11 @@
   "peerDependencies": {
     "vite": "^8.0.9"
   },
-  "optionalDependencies": {
-    "jiti": "^2.6.1"
-  },
   "dependencies": {
-    "@yanuaraditia/config": "^0.1.6"
+    "@yanuaraditia/config-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
-    "jiti": "^2.6.1",
     "tsdown": "^0.21.9",
     "typescript": "^6.0.3",
     "vite": "^8.0.9"
