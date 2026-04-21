@@ -1,6 +1,6 @@
 # `@yanuaraditia/config-react`
 
-React bindings for `@runtime-config` — `useRuntimeConfig` hook + SSR utilities.
+React bindings for `@yanuaraditia/config` — `useRuntimeConfig` hook + SSR utilities.
 
 ## SPA usage
 
@@ -28,13 +28,21 @@ export function AnyComponent() {
 ## React Router v7 (SSR)
 
 ```tsx
+// app/entry.server.tsx  (register base config once, at module load time)
+import baseConfig from '~/runtime.config'
+import { setBaseRuntimeConfig } from '@yanuaraditia/config-react/server'
+
+setBaseRuntimeConfig(baseConfig)
+```
+
+```tsx
 // app/root.tsx
 import { useLoaderData, Outlet } from 'react-router'
-import { getRuntimeConfig } from '@yanuaraditia/config-react/server'
+import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
 import { RuntimeConfigProvider, RuntimeConfigScript } from '@yanuaraditia/config-react'
 
 export async function loader() {
-  return { runtimeConfig: getRuntimeConfig() }
+  return { runtimeConfig: useRuntimeConfig() }
 }
 
 export default function Root() {
@@ -55,12 +63,56 @@ export default function Root() {
 }
 ```
 
-```tsx
-// app/entry.server.tsx  (register base config once)
-import baseConfig from '~/runtime.config'
-import { setBaseRuntimeConfig } from '@yanuaraditia/config-react/server'
+## Shopify App (React Router v7)
 
-setBaseRuntimeConfig(baseConfig)
+Works with `@shopify/shopify-app-react-router` out of the box.
+`RuntimeConfigProvider` can sit inside or outside Shopify's `AppProvider` — both work.
+
+```tsx
+// app/root.tsx
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from 'react-router'
+import { AppProvider } from '@shopify/polaris'
+import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
+import { RuntimeConfigProvider, RuntimeConfigScript } from '@yanuaraditia/config-react'
+
+export async function loader() {
+  return { runtimeConfig: useRuntimeConfig() }
+}
+
+export default function App() {
+  const { runtimeConfig } = useLoaderData<typeof loader>()
+  return (
+    <html lang="en">
+      <head>
+        <Meta />
+        <Links />
+        <RuntimeConfigScript config={runtimeConfig} />
+      </head>
+      <body>
+        <RuntimeConfigProvider config={runtimeConfig}>
+          <AppProvider i18n={{}}>
+            <Outlet />
+          </AppProvider>
+        </RuntimeConfigProvider>
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+```
+
+```tsx
+// app/routes/app._index.tsx — runtime config + Shopify auth together
+import { authenticate } from '~/shopify.server'
+import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
+import type { LoaderFunctionArgs } from 'react-router'
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { admin } = await authenticate.admin(request)
+  const { shopifyApiKey, public: publicConfig } = useRuntimeConfig()
+  return { shopifyApiKey, publicConfig }
+}
 ```
 
 ## API
@@ -70,6 +122,7 @@ setBaseRuntimeConfig(baseConfig)
 | `useRuntimeConfig()` | Hook — returns config from context or `window.__RUNTIME_CONFIG__` |
 | `RuntimeConfigProvider` | Context provider — wraps your app |
 | `RuntimeConfigScript` | Inline `<script>` that seeds `window.__RUNTIME_CONFIG__` (SSR) |
-| `getRuntimeConfig()` *(server)* | Returns full config with env overrides at request time |
+| `useRuntimeConfig()` *(server & client)* | Returns full config with env overrides applied |
 | `setBaseRuntimeConfig()` *(server)* | Register your base config once at startup |
 | `createGetRuntimeConfig()` *(server)* | Factory for standalone getters |
+

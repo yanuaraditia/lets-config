@@ -103,11 +103,11 @@ setBaseRuntimeConfig(baseConfig);
 ```tsx
 // app/root.tsx
 import { useLoaderData, Outlet } from "react-router";
-import { getRuntimeConfig } from "@yanuaraditia/config-react/server";
+import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 import { RuntimeConfigProvider, RuntimeConfigScript } from "@yanuaraditia/config-react";
 
 export async function loader() {
-  return { runtimeConfig: getRuntimeConfig() };
+  return { runtimeConfig: useRuntimeConfig() };
 }
 
 export default function Root() {
@@ -142,13 +142,144 @@ export function ApiWidget() {
 
 ```ts
 // Any loader (server-side)
-import { getRuntimeConfig } from "@yanuaraditia/config-react/server";
+import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
 
 export async function loader() {
-  const { dbUrl } = getRuntimeConfig();
+  const { dbUrl } = useRuntimeConfig();
   // dbUrl is only available server-side
 }
 ```
+
+---
+
+## Shopify App (React Router v7)
+
+Works seamlessly with [`@shopify/shopify-app-react-router`](https://www.npmjs.com/package/@shopify/shopify-app-react-router).
+
+### 1. Install
+
+```bash
+bun add @yanuaraditia/config @yanuaraditia/config-react
+bun add -D @yanuaraditia/config-vite jiti
+```
+
+### 2. Add the Vite plugin
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import { runtimeConfigPlugin } from "@yanuaraditia/config-vite";
+
+export default defineConfig({
+  plugins: [
+    // …your existing plugins (e.g. shopifyApp())
+    runtimeConfigPlugin({ generateTypes: true }),
+  ],
+});
+```
+
+### 3. Define your config
+
+```ts
+// app/runtime.config.ts
+import { defineRuntimeConfig } from "@yanuaraditia/config";
+
+export default defineRuntimeConfig({
+  // 🔒 Server-only
+  shopifyApiKey: process.env.SHOPIFY_API_KEY ?? "",
+
+  // 🌐 Public (safe to expose)
+  public: {
+    appName: "My Shopify App",
+    apiBase: "/api",
+  },
+});
+```
+
+### 4. Register config in `entry.server.tsx`
+
+```tsx
+// app/entry.server.tsx
+import baseConfig from "~/runtime.config";
+import { setBaseRuntimeConfig } from "@yanuaraditia/config-react/server";
+
+// Register once at module load time (before any request handlers run)
+setBaseRuntimeConfig(baseConfig);
+
+// …rest of your entry.server.tsx (renderToPipeableStream, etc.)
+```
+
+### 5. Root layout with Shopify providers
+
+```tsx
+// app/root.tsx
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "react-router";
+import { AppProvider } from "@shopify/polaris";
+import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
+import { RuntimeConfigProvider, RuntimeConfigScript } from "@yanuaraditia/config-react";
+
+export async function loader() {
+  // Runs alongside your Shopify auth — reads process.env at request time
+  return { runtimeConfig: useRuntimeConfig() };
+}
+
+export default function App() {
+  const { runtimeConfig } = useLoaderData<typeof loader>();
+
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Meta />
+        <Links />
+        {/* Seeds window.__RUNTIME_CONFIG__ for client hydration */}
+        <RuntimeConfigScript config={runtimeConfig} />
+      </head>
+      <body>
+        {/* RuntimeConfigProvider can nest inside or outside AppProvider */}
+        <RuntimeConfigProvider config={runtimeConfig}>
+          <AppProvider i18n={{}}>
+            <Outlet />
+          </AppProvider>
+        </RuntimeConfigProvider>
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+```
+
+### 6. Use in routes and components
+
+```tsx
+// app/routes/app._index.tsx
+import { useLoaderData } from "react-router";
+import { authenticate } from "~/shopify.server";
+import { useRuntimeConfig } from "@yanuaraditia/config-react/server";
+import type { LoaderFunctionArgs } from "react-router";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  // Shopify auth + runtime config coexist naturally
+  const { admin } = await authenticate.admin(request);
+  const { shopifyApiKey } = useRuntimeConfig();
+  return { shopifyApiKey };
+}
+```
+
+```tsx
+// Any component
+import { useRuntimeConfig } from "@yanuaraditia/config-react";
+
+export function AppHeader() {
+  const config = useRuntimeConfig();
+  return <h1>{config.public.appName}</h1>;
+}
+```
+
+> **Tip**: `RuntimeConfigScript` must be placed **before** `<Scripts />` so that
+> `window.__RUNTIME_CONFIG__` is available when React hydrates.
 
 ---
 
@@ -210,8 +341,6 @@ Add type support:
 ```
 
 ---
-
-## License
 
 ## License
 

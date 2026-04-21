@@ -4,13 +4,16 @@
  * Import these **only in server code** (loaders, actions, server middleware).
  * They read from `process.env` so they work in Node.js and edge runtimes.
  *
+ * `useRuntimeConfig` is the same API as the client-side hook — use it in loaders
+ * and server code the same way you would in components.
+ *
  * @example
  * ```ts
  * // app/root.tsx
- * import { getRuntimeConfig } from '@yanuaraditia/config-react/server'
+ * import { useRuntimeConfig } from '@yanuaraditia/config-react/server'
  *
  * export async function loader() {
- *   const config = getRuntimeConfig()   // reads process.env at request time
+ *   const config = useRuntimeConfig()   // reads process.env at request time
  *   return { runtimeConfig: config }
  * }
  * ```
@@ -24,7 +27,7 @@ let _envPrefix = 'RUNTIME_'
 
 /**
  * Register the base (default) config.  Call this once in your app's entry
- * point (server entry or root loader) before using `getRuntimeConfig()`.
+ * point (server entry or root loader) before using `useRuntimeConfig()`.
  *
  * The base config is usually the output of `defineRuntimeConfig()`.
  *
@@ -48,14 +51,13 @@ export function setBaseRuntimeConfig(
 /**
  * Get the full runtime config with environment-variable overrides applied.
  *
- * Call this inside loaders, actions, or any server-side code.
+ * Use this in loaders, actions, or any server-side code — same API as the
+ * client-side `useRuntimeConfig()` hook.
+ *
  * Returns `PrivateRuntimeConfig & { public: PublicRuntimeConfig }`.
  */
-export function getRuntimeConfig(): RuntimeConfig {
+export function useRuntimeConfig(): RuntimeConfig {
   if (!_baseConfig) {
-    // If setBaseRuntimeConfig was never called, return an empty config rather
-    // than crashing.  The Vite plugin's virtual module populates _baseConfig
-    // automatically when the SSR entry is loaded.
     return { public: {} } as unknown as RuntimeConfig
   }
   return applyEnvOverrides(
@@ -64,6 +66,9 @@ export function getRuntimeConfig(): RuntimeConfig {
     _envPrefix,
   ) as unknown as RuntimeConfig
 }
+
+/** @deprecated Use `useRuntimeConfig()` instead. */
+export const getRuntimeConfig = useRuntimeConfig
 
 /**
  * Create a self-contained getter that embeds the base config.
@@ -74,7 +79,7 @@ export function getRuntimeConfig(): RuntimeConfig {
  * import baseConfig from '~/runtime.config'
  * import { createGetRuntimeConfig } from '@yanuaraditia/config-react/server'
  *
- * export const getRuntimeConfig = createGetRuntimeConfig(baseConfig)
+ * export const useRuntimeConfig = createGetRuntimeConfig(baseConfig)
  * ```
  */
 export function createGetRuntimeConfig<T extends RuntimeConfigInput>(
