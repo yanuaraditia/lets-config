@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Framework-agnostic runtime config core — types, defineRuntimeConfig, env overrides",
   "keywords": ["runtime-config", "vite", "nuxt", "useRuntimeConfig"],
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
