@@ -1,6 +1,6 @@
 {
   "name": "@yanuaraditia/config",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic runtime config core — types, defineRuntimeConfig, env overrides",
   "keywords": ["runtime-config", "vite", "nuxt", "useRuntimeConfig"],
   "publishConfig": {

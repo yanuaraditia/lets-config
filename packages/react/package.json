@@ -1,6 +1,6 @@
 {
   "name": "@yanuaraditia/config-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React bindings for @runtime-config — useRuntimeConfig hook, provider, SSR utilities",
   "keywords": ["runtime-config", "react", "vite", "useRuntimeConfig", "react-router"],
   "publishConfig": {
