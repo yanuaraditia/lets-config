@@ -1,6 +1,6 @@
 {
   "name": "@yanuaraditia/config-react",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "React bindings for @runtime-config — useRuntimeConfig hook, provider, SSR utilities",
   "homepage": "https://github.com/yanuaraditia/config#readme",
   "repository": {
@@ -62,7 +62,7 @@
     "react": "^19.2.5"
   },
   "dependencies": {
-    "@yanuaraditia/config": "^0.1.6"
+    "@yanuaraditia/config": "^0.1.7"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.9.0",
