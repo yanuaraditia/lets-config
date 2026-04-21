@@ -21,9 +21,10 @@
     "test": "bun --filter='*' run test",
     "pub": "bun run build && (cd packages/core && npm publish) && (cd packages/vite && npm publish) && (cd packages/react && npm publish)",
     "pub:dry": "bun run build && (cd packages/core && npm publish --dry-run) && (cd packages/vite && npm publish --dry-run) && (cd packages/react && npm publish --dry-run)",
-    "release": "changelogen --release --bump",
-    "release-minor": "changelogen --release --minor",
-    "release-patch": "changelogen --release --patch"
+    "sync-versions": "bun scripts/sync-versions.ts",
+    "release": "changelogen --release --bump && bun run sync-versions",
+    "release-minor": "changelogen --release --minor && bun run sync-versions",
+    "release-patch": "changelogen --release --patch && bun run sync-versions"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
