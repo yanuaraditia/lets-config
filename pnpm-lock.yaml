@@ -35,7 +35,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@runtime-config/core':
+      lets-config:
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -60,7 +60,7 @@ importers:
 
   packages/vite:
     dependencies:
-      '@runtime-config/core':
+      lets-config:
         specifier: workspace:*
         version: link:../core
     devDependencies:

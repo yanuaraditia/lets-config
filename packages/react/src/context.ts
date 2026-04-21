@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { RuntimeConfig, ClientRuntimeConfig } from '@runtime-config/core'
+import type { RuntimeConfig, ClientRuntimeConfig } from 'lets-config'
 
 // On the server: RuntimeConfig (public + private).
 // On the client: ClientRuntimeConfig (public only), sourced from

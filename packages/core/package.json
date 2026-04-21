@@ -1,5 +1,5 @@
 {
-  "name": "@runtime-config/core",
+  "name": "lets-config",
   "version": "0.1.0",
   "description": "Framework-agnostic runtime config core — types, defineRuntimeConfig, env overrides",
   "keywords": ["runtime-config", "vite", "nuxt", "useRuntimeConfig"],

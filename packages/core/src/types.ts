@@ -4,7 +4,7 @@
  * Extend this interface to add your private (server-only) config keys.
  *
  * @example
- * declare module '@runtime-config/core' {
+ * declare module 'lets-config' {
  *   interface PrivateRuntimeConfig {
  *     dbUrl: string
  *     secretKey: string
@@ -18,7 +18,7 @@ export interface PrivateRuntimeConfig {}
  * Extend this interface to add your public (client + server) config keys.
  *
  * @example
- * declare module '@runtime-config/core' {
+ * declare module 'lets-config' {
  *   interface PublicRuntimeConfig {
  *     apiBase: string
  *     appName: string

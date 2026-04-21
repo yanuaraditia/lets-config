@@ -6,6 +6,6 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: ['vite', 'jiti', '@runtime-config/core'],
+  external: ['vite', 'jiti', 'lets-config'],
   platform: 'node',
 })

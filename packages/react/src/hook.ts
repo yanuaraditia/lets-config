@@ -3,7 +3,7 @@
 import { useContext } from 'react'
 import { RuntimeConfigContext } from './context'
 import type { AnyRuntimeConfig } from './context'
-import type { RuntimeConfig, ClientRuntimeConfig } from '@runtime-config/core'
+import type { RuntimeConfig, ClientRuntimeConfig } from 'lets-config'
 
 /**
  * Access the runtime config from anywhere in your React tree.

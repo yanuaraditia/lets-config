@@ -7,7 +7,7 @@
  * @example
  * ```ts
  * // app/root.tsx
- * import { getRuntimeConfig } from '@runtime-config/react/server'
+ * import { getRuntimeConfig } from '@lets-config/react/server'
  *
  * export async function loader() {
  *   const config = getRuntimeConfig()   // reads process.env at request time
@@ -16,8 +16,8 @@
  * ```
  */
 
-import { applyEnvOverrides } from '@runtime-config/core'
-import type { RuntimeConfigInput, RuntimeConfig } from '@runtime-config/core'
+import { applyEnvOverrides } from 'lets-config'
+import type { RuntimeConfigInput, RuntimeConfig } from 'lets-config'
 
 let _baseConfig: RuntimeConfigInput | null = null
 let _envPrefix = 'RUNTIME_'
@@ -32,7 +32,7 @@ let _envPrefix = 'RUNTIME_'
  * ```ts
  * // app/entry.server.tsx  OR  app/root.tsx (top of file)
  * import baseConfig from '~/runtime.config'
- * import { setBaseRuntimeConfig } from '@runtime-config/react/server'
+ * import { setBaseRuntimeConfig } from '@lets-config/react/server'
  *
  * setBaseRuntimeConfig(baseConfig, { envPrefix: 'RUNTIME_' })
  * ```
@@ -72,7 +72,7 @@ export function getRuntimeConfig(): RuntimeConfig {
  * @example
  * ```ts
  * import baseConfig from '~/runtime.config'
- * import { createGetRuntimeConfig } from '@runtime-config/react/server'
+ * import { createGetRuntimeConfig } from '@lets-config/react/server'
  *
  * export const getRuntimeConfig = createGetRuntimeConfig(baseConfig)
  * ```

@@ -8,7 +8,7 @@ export default defineConfig([
     dts: true,
     sourcemap: true,
     clean: true,
-    external: ['react', 'react-dom', '@runtime-config/core'],
+    external: ['react', 'react-dom', 'lets-config'],
   },
   // Server bundle
   {
@@ -16,7 +16,7 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     sourcemap: true,
-    external: ['react', 'react-dom', '@runtime-config/core'],
+    external: ['react', 'react-dom', 'lets-config'],
     platform: 'node',
   },
 ])

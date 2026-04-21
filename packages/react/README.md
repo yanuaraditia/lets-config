@@ -1,4 +1,4 @@
-# `@runtime-config/react`
+# `@lets-config/react`
 
 React bindings for `@runtime-config` — `useRuntimeConfig` hook + SSR utilities.
 
@@ -6,7 +6,7 @@ React bindings for `@runtime-config` — `useRuntimeConfig` hook + SSR utilities
 
 ```tsx
 // main.tsx
-import { RuntimeConfigProvider } from '@runtime-config/react'
+import { RuntimeConfigProvider } from '@lets-config/react'
 
 createRoot(document.getElementById('root')!).render(
   <RuntimeConfigProvider>
@@ -17,7 +17,7 @@ createRoot(document.getElementById('root')!).render(
 
 ```tsx
 // AnyComponent.tsx
-import { useRuntimeConfig } from '@runtime-config/react'
+import { useRuntimeConfig } from '@lets-config/react'
 
 export function AnyComponent() {
   const config = useRuntimeConfig()
@@ -30,8 +30,8 @@ export function AnyComponent() {
 ```tsx
 // app/root.tsx
 import { useLoaderData, Outlet } from 'react-router'
-import { getRuntimeConfig } from '@runtime-config/react/server'
-import { RuntimeConfigProvider, RuntimeConfigScript } from '@runtime-config/react'
+import { getRuntimeConfig } from '@lets-config/react/server'
+import { RuntimeConfigProvider, RuntimeConfigScript } from '@lets-config/react'
 
 export async function loader() {
   return { runtimeConfig: getRuntimeConfig() }
@@ -58,7 +58,7 @@ export default function Root() {
 ```tsx
 // app/entry.server.tsx  (register base config once)
 import baseConfig from '~/runtime.config'
-import { setBaseRuntimeConfig } from '@runtime-config/react/server'
+import { setBaseRuntimeConfig } from '@lets-config/react/server'
 
 setBaseRuntimeConfig(baseConfig)
 ```
